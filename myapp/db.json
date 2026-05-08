@@ -1,0 +1,21 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "yatish singhal ",
+      "email": "yatish4554@gmail.com",
+      "username": "yatish_0401",
+      "phone": "95292237388",
+      "website": "ama",
+      "user": "Yatish1234"
+    },
+    {
+      "id": "2",
+      "name": "yash singhal",
+      "email": "yash1234@gmail.com",
+      "username": "yatish_540401",
+      "phone": "95292677692",
+      "website": "flipkart"
+    }
+  ]
+}

@@ -1,0 +1,467 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+img, video {
+  max-width: 100%;
+}
+
+/* ===== HOME.JSX DASHBOARD - SIDEBAR + MAIN CONTENT ===== */
+
+/* Hamburger button - hidden on desktop */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10000;
+  background: #1a3a52;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Overlay for sidebar on mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+@media (max-width: 768px) {
+  /* Show hamburger button */
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  /* Sidebar hidden off-screen by default on mobile */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    width: 260px !important;
+  }
+
+  /* Sidebar open state */
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Show overlay when sidebar is open */
+  .sidebar-overlay.open {
+    display: block;
+  }
+
+  /* Main content takes full width */
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Top bar padding adjustment for hamburger */
+  .top-bar {
+    padding: 16px 16px 16px 60px !important;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .top-bar-left h1 {
+    font-size: 18px !important;
+  }
+
+  .top-bar-right {
+    gap: 8px !important;
+    flex-wrap: wrap;
+  }
+
+  /* Dashboard content */
+  .dashboard-content {
+    padding: 15px !important;
+  }
+
+  /* Info card rows */
+  .info-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  /* Table - make horizontally scrollable */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table {
+    min-width: 600px;
+  }
+
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 15px !important;
+  }
+
+  /* Modal full screen on mobile */
+  .modal-overlay {
+    padding: 10px !important;
+  }
+
+  .modal-dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 95vh !important;
+    margin: 0 !important;
+  }
+
+  .modal-body {
+    padding: 15px !important;
+  }
+
+  /* Action buttons stack */
+  .action-buttons {
+    flex-direction: column;
+    gap: 5px !important;
+  }
+
+  .btn-action {
+    font-size: 10px !important;
+    padding: 5px 8px !important;
+  }
+
+  /* Permissions grid single column */
+  .permissions-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Badges */
+  .badge {
+    font-size: 9px !important;
+    padding: 3px 6px !important;
+  }
+
+  /* Site info hide on very small */
+  .site-info {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .info-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .top-bar-left h1 {
+    font-size: 16px !important;
+  }
+
+  .dashboard-content {
+    padding: 10px !important;
+  }
+}
+
+
+/* ===== LOGIN PAGE ===== */
+@media (max-width: 768px) {
+  /* Login container */
+  div[style*="minHeight: \"95vh\""],
+  div[style*="min-height: 95vh"] {
+    padding: 15px !important;
+    align-items: flex-start !important;
+    padding-top: 40px !important;
+  }
+
+  /* Login card */
+  div[style*="maxWidth: \"420px\""] {
+    padding: 25px 20px !important;
+    border-radius: 16px !important;
+  }
+
+  /* ReCAPTCHA scale */
+  .g-recaptcha {
+    transform: scale(0.85);
+    transform-origin: center;
+  }
+
+  /* Login buttons */
+  .btn.w-100 {
+    padding: 10px !important;
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .g-recaptcha {
+    transform: scale(0.75);
+    transform-origin: center;
+  }
+}
+
+
+/* ===== SIGNUP PAGE ===== */
+@media (max-width: 768px) {
+  .card-3d {
+    width: 95% !important;
+    max-width: 95% !important;
+    padding: 18px !important;
+    max-height: 95vh !important;
+  }
+
+  .role-select-container {
+    grid-template-columns: 1fr !important;
+  }
+
+  .row {
+    flex-direction: column !important;
+  }
+
+  .col-md-6 {
+    width: 100% !important;
+  }
+
+  .bg-blob {
+    display: none !important;
+  }
+
+  /* Phone input */
+  .react-tel-input .form-control {
+    font-size: 14px !important;
+  }
+}
+
+
+/* ===== FORGOT PASSWORD PAGE ===== */
+@media (max-width: 768px) {
+  .d-flex.justify-content-center.align-items-center.vh-100.bg-primary {
+    padding: 20px;
+    align-items: flex-start;
+    padding-top: 60px;
+  }
+
+  .bg-white.p-4.rounded.w-25 {
+    width: 95% !important;
+    min-width: unset !important;
+  }
+}
+
+
+/* ===== CREATE PROFILE PAGE ===== */
+@media (max-width: 768px) {
+  /* Create page container */
+  div[style*="minWidth: \"420px\""],
+  div[style*="min-width: 420px"] {
+    min-width: unset !important;
+    width: 95% !important;
+    margin: 20px auto !important;
+    padding: 20px !important;
+  }
+
+  .d-flex.w-100.vh-100.justify-content-center.align-items-center {
+    align-items: flex-start !important;
+    padding: 20px 10px !important;
+  }
+}
+
+
+/* ===== READ (USER DETAIL) PAGE ===== */
+@media (max-width: 768px) {
+  .d-flex.justify-content-center.align-items-center.vh-100 {
+    align-items: flex-start !important;
+    padding: 20px 10px !important;
+  }
+
+  /* Read card */
+  div[style*="width: \"450px\""] {
+    width: 95% !important;
+  }
+
+  .d-flex.justify-content-between {
+    gap: 10px;
+  }
+}
+
+
+/* ===== UPDATE PAGE ===== */
+@media (max-width: 768px) {
+  /* Update form grid */
+  div[style*="gridTemplateColumns: \"repeat(2, 1fr)\""] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Update card */
+  div[style*="width: \"600px\""] {
+    width: 95% !important;
+    padding: 20px 15px !important;
+  }
+
+  .d-flex.justify-content-between.gap-2 {
+    flex-direction: column !important;
+  }
+
+  .d-flex.justify-content-between.gap-2 > * {
+    width: 100% !important;
+  }
+}
+
+
+/* ===== OTP PAGE ===== */
+@media (max-width: 768px) {
+  .bg-white.p-4.rounded.w-25[style*="minWidth"] {
+    width: 95% !important;
+    min-width: unset !important;
+  }
+
+  /* OTP input + button row */
+  .d-flex.me-2 {
+    gap: 6px !important;
+  }
+}
+
+
+/* ===== SUPER ADMIN LOGIN ===== */
+@media (max-width: 768px) {
+  div[style*="width: \"400px\""] {
+    width: 95% !important;
+    padding: 20px !important;
+  }
+}
+
+
+/* ===== SUPER ADMIN DASHBOARD ===== */
+@media (max-width: 768px) {
+  /* Same sidebar pattern as Home */
+  .admin-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .admin-main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 15px !important;
+  }
+
+  /* Stats grid */
+  .stats-grid,
+  div[style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid,
+  div[style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* ===== GENERAL UTILITY FIXES ===== */
+
+/* Tables always scrollable */
+.table-responsive-mobile {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Buttons - minimum tap target size */
+@media (max-width: 768px) {
+  button, .btn, a.btn {
+    min-height: 36px;
+  }
+
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+    border-radius: 8px !important;
+  }
+
+  /* Stack flex rows vertically */
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+
+  /* Full width on mobile */
+  .mobile-full {
+    width: 100% !important;
+  }
+
+  /* Hide on mobile */
+  .mobile-hide {
+    display: none !important;
+  }
+
+  /* Show only on mobile */
+  .desktop-hide {
+    display: block !important;
+  }
+}
+
+.desktop-hide {
+  display: none;
+}
+
+
+/* ===== SCROLL & OVERFLOW FIXES ===== */
+@media (max-width: 768px) {
+  /* Prevent horizontal scroll */
+  .container-fluid,
+  .container {
+    overflow-x: hidden;
+  }
+
+  /* Modals */
+  .modal-content {
+    margin: 0 10px !important;
+  }
+
+  /* Forms */
+  .form-group {
+    margin-bottom: 14px !important;
+  }
+}
+
+
+/* ===== TOUCH-FRIENDLY IMPROVEMENTS ===== */
+@media (max-width: 768px) {
+  /* Larger checkboxes */
+  input[type="checkbox"] {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Nav items in sidebar */
+  .nav-item {
+    padding: 14px 20px !important;
+    font-size: 14px !important;
+  }
+
+  /* Card headers */
+  .card-header h3 {
+    font-size: 14px !important;
+  }
+
+  /* Data table cells */
+  .data-table td,
+  .data-table th {
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+  }
+}
