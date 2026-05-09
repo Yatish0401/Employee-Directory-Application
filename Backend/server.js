@@ -9,7 +9,12 @@ require("dotenv").config({ path: "./captcha.env" });
 const axios = require("axios");
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://employee-directory-application-tan.vercel.app/",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
