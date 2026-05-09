@@ -1077,13 +1077,13 @@ app.delete("/profiles/:id", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  const { identifier, password, captcha } = req.body;
+  const { identifier, password } = req.body;
 
-  if (!captcha) return res.status(400).json({ message: "Captcha Missing" });
+  // if (!captcha) return res.status(400).json({ message: "Captcha Missing" });
 
   try {
     const captchaResponse = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
-      params: { secret: process.env.RECAPTCHA_SECRET_KEY, response: captcha },
+      params: { secret: process.env.RECAPTCHA_SECRET_KEY },
     });
 
     if (!captchaResponse.data.success && process.env.NODE_ENV === "production") {
