@@ -244,7 +244,7 @@ function Signup() {
     permissions: []
   });
 
-  const [captchaValue, setCaptchaValue] = useState("");
+  // const [captchaValue, setCaptchaValue] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [theme, setTheme] = useState("mint");
@@ -282,7 +282,7 @@ function Signup() {
   }, [theme]);
 
   const handleCaptcha = (value) => {
-    setCaptchaValue(value);
+    // setCaptchaValue(value);
     setErrors((prev) => ({
       ...prev,
       general:
@@ -342,15 +342,15 @@ function Signup() {
     const formErrors = validate();
     setErrors(formErrors);
 
-    if (!captchaValue) {
-      const cap = document.querySelector(".recaptcha-container");
-      if (cap) cap.scrollIntoView({ behavior: "smooth", block: "center" });
-      setErrors((prev) => ({
-        ...prev,
-        general: "⚠️ Please verify CAPTCHA before signup.",
-      }));
-      return;
-    }
+    // if (!captchaValue) {
+    //   const cap = document.querySelector(".recaptcha-container");
+    //   if (cap) cap.scrollIntoView({ behavior: "smooth", block: "center" });
+    //   setErrors((prev) => ({
+    //     ...prev,
+    //     general: "⚠️ Please verify CAPTCHA before signup.",
+    //   }));
+    //   return;
+    // }
 
     if (Object.keys(formErrors).length === 0) {
       setLoading(true);
@@ -373,7 +373,7 @@ function Signup() {
             password: values.password,
             role: values.role,           // ✅ empty = first user, backend assigns superadmin
             permissions: values.permissions,
-            captcha: captchaValue,
+            // captcha: captchaValue,
           },
           {
             headers: { "Content-Type": "application/json" },
@@ -413,7 +413,7 @@ if (res.data.message === "User created successfully" || res.data.success) {
             recaptchaRef.current
           ) {
             recaptchaRef.current.reset();
-            setCaptchaValue("");
+            // setCaptchaValue("");
           }
         }
       } catch (err) {
@@ -440,7 +440,7 @@ if (res.data.message === "User created successfully" || res.data.success) {
           try {
             recaptchaRef.current.reset();
           } catch (e) {}
-          setCaptchaValue("");
+          // setCaptchaValue("");
         }
       } finally {
         setLoading(false);

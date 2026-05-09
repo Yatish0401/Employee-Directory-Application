@@ -820,12 +820,12 @@ function Login() {
               </div>
             </div>
 
-            <div className="cdn-captcha">
+            {/* <div className="cdn-captcha">
               <ReCAPTCHA
                 sitekey="6LebAwgsAAAAAAy1a78kvOKk9qpWhVrT4POAfilH"
                 onChange={handleCaptcha}
               />
-            </div>
+            </div> */}
 
             <div className="cdn-btn-row">
               <button type="submit" className="cdn-btn-primary" disabled={loading}>
