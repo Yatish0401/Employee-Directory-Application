@@ -9,7 +9,7 @@ function Read() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8081/users/" + id)
+      .get("http://https://employee-directory-application-xzt1.onrender.com/users/" + id)
       .then((res) => setData(res.data))
       .catch((err) => console.log(err));
   }, [id]);

@@ -174,7 +174,7 @@ const uploadAvPosFiles = async (orderId) => {
     formData.append('file', file);
     formData.append('orderId', orderId);
     try {
-      await axios.post('http://localhost:8081/orders/avpos/upload-pod', formData, {
+      await axios.post('http://https://employee-directory-application-xzt1.onrender.com/orders/avpos/upload-pod', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
     } catch (err) {
@@ -187,7 +187,7 @@ const uploadAvPosFiles = async (orderId) => {
 
 
 const fetchProducts = useCallback(() => {
-  axios.get('http://localhost:8081/products')
+  axios.get('http://https://employee-directory-application-xzt1.onrender.com/products')
     .then((res) => {
       const data = res.data || [];   // ✅ hamesha latest data use karo
       setProducts(data);
@@ -411,7 +411,7 @@ const handleSaveManufacturer = async () => {
   }
   try {
     if (manufacturerForm.id) {
-      await axios.put(`http://localhost:8081/manufacturers/${manufacturerForm.id}`, {
+      await axios.put(`http://https://employee-directory-application-xzt1.onrender.com/manufacturers/${manufacturerForm.id}`, {
         name: manufacturerForm.name,
         productType: manufacturerForm.productType
       });
@@ -419,7 +419,7 @@ const handleSaveManufacturer = async () => {
       alert("✅ Manufacturer updated successfully!");
       setActiveOrdersPage('manufacturer-list');
     } else {
-      await axios.post('http://localhost:8081/manufacturers', {
+      await axios.post('http://https://employee-directory-application-xzt1.onrender.com/manufacturers', {
         name: manufacturerForm.name,
         productType: manufacturerForm.productType
       });
@@ -471,7 +471,7 @@ const uploadItarPodFiles = async (orderId) => {
     const formData = new FormData();
     formData.append('file', file);
     await axios.post(
-      `http://localhost:8081/orders/itar/${orderId}/pod-files`,
+      `http://https://employee-directory-application-xzt1.onrender.com/orders/itar/${orderId}/pod-files`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
@@ -495,7 +495,7 @@ const uploadHardwarePodFiles = async (orderId) => {
     const formData = new FormData();
     formData.append('file', file);
     await axios.post(
-      `http://localhost:8081/orders/hardware/${orderId}/pod-files`,
+      `http://https://employee-directory-application-xzt1.onrender.com/orders/hardware/${orderId}/pod-files`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
@@ -552,7 +552,7 @@ useEffect(() => {
 
     // DB mein bhi save karo
     try {
-      await axios.post('http://localhost:8081/activity', {
+      await axios.post('http://https://employee-directory-application-xzt1.onrender.com/activity', {
         userId: currentUser?.id || null,
         userName: currentUser?.name || currentUser?.username || "Unknown",
         action,
@@ -568,9 +568,9 @@ useEffect(() => {
   if (activeOrdersPage === 'activity-logs' && user?.id) {
 
     // DB se 60 din purane logs delete karo
-    axios.delete('http://localhost:8081/activity/cleanup').catch(() => {});
+    axios.delete('http://https://employee-directory-application-xzt1.onrender.com/activity/cleanup').catch(() => {});
 
-    axios.get(`http://localhost:8081/activity?userId=${user.id}`)
+    axios.get(`http://https://employee-directory-application-xzt1.onrender.com/activity?userId=${user.id}`)
       .then((res) => {
         const dbLogs = (res.data || []).map(log => ({
   id: log.id,
@@ -772,7 +772,7 @@ const toggleManagementPermission = (permission) => {
 }, []);
 
     const fetchRoles = useCallback(() => {
-      axios.get('http://localhost:8081/roles')
+      axios.get('http://https://employee-directory-application-xzt1.onrender.com/roles')
         .then((res) => {
           console.log('✅ Fetched roles:', res.data);
           setRoles(res.data);
@@ -789,7 +789,7 @@ const toggleManagementPermission = (permission) => {
           return;
         }
 
-        await axios.post("http://localhost:8081/roles", {
+        await axios.post("http://https://employee-directory-application-xzt1.onrender.com/roles", {
           role_name: newRoleName,
           permissions: selectedManagementPermissions,
           created_by: user?.id || null
@@ -825,7 +825,7 @@ const toggleManagementPermission = (permission) => {
           return;
         }
 
-        await axios.put(`http://localhost:8081/roles/${editingRole.id}`, {
+        await axios.put(`http://https://employee-directory-application-xzt1.onrender.com/roles/${editingRole.id}`, {
           role_name: editingRole.role_name,
           permissions: editingRole.permissions
         });
@@ -867,7 +867,7 @@ addActivityLog("Updated", "Role Management", permDetails);
     console.log("🔍 Fetching profiles for user:", userId, "role:", userRole);
     
     axios
-      .get(`http://localhost:8081/users`)
+      .get(`http://https://employee-directory-application-xzt1.onrender.com/users`)
       .then((res) => {
         const profiles = res.data || [];
         console.log(`✅ Fetched ${profiles.length} profiles`);
@@ -884,7 +884,7 @@ addActivityLog("Updated", "Role Management", permDetails);
     const fetchUserProfileId = useCallback(async (userId) => {
       try {
         console.log("🔍 Fetching profile ID for user:", userId);
-        const res = await axios.get(`http://localhost:8081/users/${userId}/profile`);
+        const res = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/users/${userId}/profile`);
         setUserProfileId(res.data.profileId);
         console.log("✅ User's profile ID:", res.data.profileId);
       } catch (error) {
@@ -897,7 +897,7 @@ addActivityLog("Updated", "Role Management", permDetails);
   if (loggedUser) {
     try {
       const userData = JSON.parse(loggedUser);
-      const res = await axios.get(`http://localhost:8081/users/${userData.id}/full`);
+      const res = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/users/${userData.id}/full`);
       const updatedUser = res.data;
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
@@ -962,7 +962,7 @@ addActivityLog("Updated", "Role Management", permDetails);
     }, [fetchRoles]);
 
    const fetchManufacturers = useCallback(() => {
-  axios.get('http://localhost:8081/manufacturers')
+  axios.get('http://https://employee-directory-application-xzt1.onrender.com/manufacturers')
     .then((res) => {
       const data = res.data || [];   // ✅ hamesha latest data use karo
       setManufacturers(data);
@@ -993,7 +993,7 @@ useEffect(() => {
   if (activeOrdersPage !== 'hardware-orders-detail' || !selectedHardwareOrder) return;
   const order   = selectedHardwareOrder;
   const orderId = order.id || order.hardware_id;
-  const BASE    = 'http://localhost:8081';
+  const BASE    = 'http://https://employee-directory-application-xzt1.onrender.com';
 
   const loadWarranties = async () => {
     const loaded = {};
@@ -1052,7 +1052,7 @@ const handleDeleteProduct = async (id) => {
   if (window.confirm("Are you sure you want to delete this product?")) {
     try {
       const product = products.find(p => p.id === id);
-      await axios.delete(`http://localhost:8081/products/${id}`);
+      await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/products/${id}`);
       addActivityLog("Deleted", "Product", `Product deleted — Part#: ${product?.part_number}, Type: ${product?.product_type}`);
       alert("✅ Product deleted successfully!");
       fetchProducts();
@@ -1090,7 +1090,7 @@ const handleSaveProduct = async () => {
       const oldProduct = products.find(p => p.id === editingProductId);
       if (!imageDataUrl) payload.productImage = oldProduct?.product_image || null;
       
-      await axios.put(`http://localhost:8081/products/${editingProductId}`, payload);
+      await axios.put(`http://https://employee-directory-application-xzt1.onrender.com/products/${editingProductId}`, payload);
       
      const productChanges = [];
 if (oldProduct?.product_type !== productForm.productType) 
@@ -1115,7 +1115,7 @@ if (productChanges.length > 0) {
       setEditingProductId(null);
       setActiveOrdersPage('product-management-list');
     } else {
-      await axios.post('http://localhost:8081/products', payload);
+      await axios.post('http://https://employee-directory-application-xzt1.onrender.com/products', payload);
       addActivityLog("Created", "Product", `New Product added — Part#: ${productForm.partNumber}, Type: ${productForm.productType}, Manufacturer: ${productForm.manufacturerName}`);
       alert("✅ Product saved successfully!");
     }
@@ -1140,7 +1140,7 @@ if (productChanges.length > 0) {
   const profileRole = profile?.role || "Unknown";
 
   if (window.confirm(`Are you sure you want to delete profile of "${profileName}"?\n\nThis action cannot be undone!`)) {
-    axios.delete(`http://localhost:8081/profiles/${id}`).then(() => {
+    axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/profiles/${id}`).then(() => {
       addActivityLog("Deleted", "User Management", `Profile deleted — Name: "${profileName}", Email: "${profileEmail}", Role: "${profileRole}"`);
       fetchUserProfiles();
       window.dispatchEvent(new CustomEvent("profileUpdated", { detail: { deletedId: id } }));
@@ -1200,7 +1200,7 @@ if (productChanges.length > 0) {
         console.log("📝 Updating profile with payload:", payload);
 
         const oldProfile = data.find(p => p.id === editingProfile.id);
-      await axios.put(`http://localhost:8081/profiles/${editingProfile.id}`, payload);
+      await axios.put(`http://https://employee-directory-application-xzt1.onrender.com/profiles/${editingProfile.id}`, payload);
 
         console.log("✅ Profile updated successfully");
 
@@ -1293,7 +1293,7 @@ addActivityLog("Updated", "User Management", `Profile updated — ${userChanges.
         console.log("➕ Adding child user with creator (logged-in user) ID:", user.id);
         console.log("📦 Payload:", JSON.stringify(payload, null, 2));
 
-        const res = await axios.post(`http://localhost:8081/profiles`, payload, {
+        const res = await axios.post(`http://https://employee-directory-application-xzt1.onrender.com/profiles`, payload, {
           headers: { 'Content-Type': 'application/json' }
         });
 
@@ -1394,7 +1394,7 @@ addActivityLog("Updated", "User Management", `Profile updated — ${userChanges.
       const oldOrder = itarOrders.find(o => o.id === editingItarOrderId);
       console.log("ITAR oldOrder remark:", oldOrder?.remark);
 console.log("ITAR oldOrder comment:", oldOrder?.comment);
-      await axios.put(`http://localhost:8081/orders/itar/${editingItarOrderId}`, payload);
+      await axios.put(`http://https://employee-directory-application-xzt1.onrender.com/orders/itar/${editingItarOrderId}`, payload);
 
       const changes = [];
       if (oldOrder?.est_no !== itarOrderForm.estNo) changes.push(`Est#: "${oldOrder?.est_no}" → "${itarOrderForm.estNo}"`);
@@ -1467,7 +1467,7 @@ if (changes.length > 0) {
       setActiveOrdersPage('itar-list'); // ✅ sabse last
 
     } else {
-      await axios.post('http://localhost:8081/orders/itar', payload);
+      await axios.post('http://https://employee-directory-application-xzt1.onrender.com/orders/itar', payload);
       addActivityLog(
         "Created", "ITAR Order",
         `New ITAR Order created — Est#: ${itarOrderForm.estNo}, Order Date: ${itarOrderForm.orderDate}, Product: ${itarOrderForm.productType}, Manufacturer: ${itarOrderForm.manufacturerName}, ${isOther ? `Special Request: ${itarOrderForm.specialRequest}` : `Part#: ${itarOrderForm.partNumber}`}, QTY: ${itarOrderForm.qty}, S.N.: ${itarOrderForm.serialNumber}, Location: ${itarOrderForm.location}, ITAR#: ${itarOrderForm.itarNo}, Ship Date: ${itarOrderForm.shipDate}, Invoice#: ${itarOrderForm.invoiceNo}, Status: ${itarOrderForm.orderStatus}`
@@ -1502,7 +1502,7 @@ console.log('Role:', currentUser?.role);
 console.log('isSuperAdmin:', isSuperAdmin);
 
 const fetchItarOrders = useCallback(() => {
-  axios.get('http://localhost:8081/orders/itar')
+  axios.get('http://https://employee-directory-application-xzt1.onrender.com/orders/itar')
     .then((res) => {
       const data = res.data || [];              // ✅ hamesha update karo
       setItarOrders(data);
@@ -1517,7 +1517,7 @@ const fetchItarOrders = useCallback(() => {
 }, []);
 
 const fetchHardwareOrders = useCallback(() => {
-  axios.get('http://localhost:8081/orders/hardware')
+  axios.get('http://https://employee-directory-application-xzt1.onrender.com/orders/hardware')
     .then((res) => {
       const data = res.data || [];
       setHardwareOrders(data);
@@ -1534,7 +1534,7 @@ const fetchHardwareOrders = useCallback(() => {
 
 
 const fetchAvPosOrders = useCallback(() => {
-  axios.get('http://localhost:8081/orders/avpos')
+  axios.get('http://https://employee-directory-application-xzt1.onrender.com/orders/avpos')
     .then((res) => {
       const data = res.data || [];       // ✅ length check nahi, filter nahi
       setAvPosOrders(data);
@@ -1549,7 +1549,7 @@ const fetchAvPosOrders = useCallback(() => {
 }, []);  
 
 const fetchHardwareSoftwarePosOrders = useCallback(() => {
-  axios.get('http://localhost:8081/orders/hwswpos')
+  axios.get('http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos')
     .then((res) => {
       const data = res.data || [];       // ✅ length check nahi, username filter nahi
       setHardwareSoftwarePosOrders(data);
@@ -1586,7 +1586,7 @@ const fetchHardwareSoftwarePosOrders = useCallback(() => {
   if (window.confirm("Are you sure you want to delete this ITAR order?")) {
     try {
       const order = itarOrders.find(o => o.id === id);
-      await axios.delete(`http://localhost:8081/orders/itar/${id}`);
+      await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/orders/itar/${id}`);
       addActivityLog("Deleted", "ITAR Order", `ITAR Order deleted — Est#: ${order?.est_no || id}`);
       alert("✅ ITAR Order deleted successfully!");
       fetchItarOrders();
@@ -1665,7 +1665,7 @@ const fetchHardwareSoftwarePosOrders = useCallback(() => {
       console.log("HW oldOrder remark:", oldOrder?.remark);
 console.log("HW oldOrder comment:", oldOrder?.comment);
       console.log("oldOrder items sample:", oldOrder?.items?.[0]);
-      await axios.put(`http://localhost:8081/orders/hardware/${editingHardwareOrderId}`, payload);
+      await axios.put(`http://https://employee-directory-application-xzt1.onrender.com/orders/hardware/${editingHardwareOrderId}`, payload);
       
       const changes = [];
       if (oldOrder?.est_no !== hardwareOrderForm.estNo) changes.push(`Est#: "${oldOrder?.est_no}" → "${hardwareOrderForm.estNo}"`);
@@ -1755,7 +1755,7 @@ console.log("HW oldOrder comment:", oldOrder?.comment);
       setEditingHardwareOrderId(null);
       setActiveOrdersPage('hardware-orders-list');
     } else {
-      await axios.post('http://localhost:8081/orders/hardware', payload);
+      await axios.post('http://https://employee-directory-application-xzt1.onrender.com/orders/hardware', payload);
       addActivityLog("Created", "Hardware Order", `New Hardware Order created — Est#: ${hardwareOrderForm.estNo}, Order Date: ${hardwareOrderForm.orderDate}, Product: ${hardwareOrderForm.productType}, Manufacturer: ${hardwareOrderForm.manufacturerName}, Part#: ${hardwareOrderForm.partNumber}, QTY: ${hardwareOrderForm.qty}, S.N.: ${hardwareOrderForm.serialNumber}, Location: ${hardwareOrderForm.location}, Hardware#: ${hardwareOrderForm.hardwareNo}, Ship Date: ${hardwareOrderForm.shipDate}, Invoice#: ${hardwareOrderForm.invoiceNo}, Status: ${hardwareOrderForm.orderStatus}`);
       alert("✅ Hardware Order saved successfully!");
       setActiveOrdersPage('hardware-orders-list');
@@ -1789,7 +1789,7 @@ console.log("HW oldOrder comment:", oldOrder?.comment);
   if (window.confirm("Are you sure you want to delete this Hardware order?")) {
     try {
       const order = hardwareOrders.find(o => o.id === id);
-      await axios.delete(`http://localhost:8081/orders/hardware/${id}`);
+      await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/orders/hardware/${id}`);
       addActivityLog("Deleted", "Hardware Order", `Hardware Order deleted — Est#: ${order?.est_no || id}`);
       alert("✅ Hardware Order deleted successfully!");
       fetchHardwareOrders();
@@ -1829,7 +1829,7 @@ useEffect(() => {
   if (activeOrdersPage === 'hardware-orders-detail' && selectedHardwareOrder) {
     const orderId = selectedHardwareOrder.id || selectedHardwareOrder.hardware_id;
 
-    axios.get(`http://localhost:8081/warranty/order/${orderId}`)
+    axios.get(`http://https://employee-directory-application-xzt1.onrender.com/warranty/order/${orderId}`)
       .then(res => {
         const loaded = {};
         res.data.forEach(w => {
@@ -1894,7 +1894,7 @@ const payload = {
     if (editingAvPosOrderId) {
       const oldOrder = avPosOrders.find(o => o.id === editingAvPosOrderId);
 
-      await axios.put(`http://localhost:8081/orders/avpos/${editingAvPosOrderId}`, payload);
+      await axios.put(`http://https://employee-directory-application-xzt1.onrender.com/orders/avpos/${editingAvPosOrderId}`, payload);
 
       // ✅ Edit pe bhi nayi files upload karo
       await uploadAvPosFiles(editingAvPosOrderId);
@@ -2002,7 +2002,7 @@ const payload = {
 
     } else {
       // ✅ CREATE — pehle order save karo, phir files upload karo
-      const createRes = await axios.post('http://localhost:8081/orders/avpos', payload);
+      const createRes = await axios.post('http://https://employee-directory-application-xzt1.onrender.com/orders/avpos', payload);
       const newOrderId = createRes.data.id;
 
       // ✅ Files upload karo naye order ke saath
@@ -2043,7 +2043,7 @@ const handleResetAvPosForm = () => {
   if (window.confirm("Are you sure you want to delete this AV Pos order?")) {
     try {
       const order = avPosOrders.find(o => o.id === id);
-      await axios.delete(`http://localhost:8081/orders/avpos/${id}`);
+      await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/orders/avpos/${id}`);
       await addActivityLog("Deleted", "AV Pos Order", `AV Pos Order deleted — PO#: ${order?.av_pos_no || id}`);
       alert("✅ AV Pos Order deleted successfully!");
       fetchAvPosOrders();
@@ -2127,7 +2127,7 @@ const payload = {
 
     if (editingHardwareSoftwarePosOrderId) {
       const oldOrder = hardwareSoftwarePosOrders.find(o => o.id === editingHardwareSoftwarePosOrderId);
-      await axios.put(`http://localhost:8081/orders/hwswpos/${editingHardwareSoftwarePosOrderId}`, payload);
+      await axios.put(`http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/${editingHardwareSoftwarePosOrderId}`, payload);
 
       const changes = [];
 
@@ -2247,7 +2247,7 @@ const payload = {
       setActiveOrdersPage('hardware-software-pos-list');
 
     } else {
-      const res = await axios.post('http://localhost:8081/orders/hwswpos', payload);
+      const res = await axios.post('http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos', payload);
       const newOrderId = res.data.id;
 
       addActivityLog(
@@ -2264,7 +2264,7 @@ const payload = {
         formData.append('file', file);
         formData.append('orderId', newOrderId);
         try {
-          await axios.post('http://localhost:8081/orders/hwswpos/upload-pod', formData, {
+          await axios.post('http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/upload-pod', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
           });
           console.log('✅ POD uploaded:', file.name);
@@ -2307,7 +2307,7 @@ const handleResetHardwareSoftwarePosForm = () => {
   if (window.confirm("Are you sure you want to delete this Hardware & Software PO?")) {
     try {
       const order = hardwareSoftwarePosOrders.find(o => o.id === id);
-      await axios.delete(`http://localhost:8081/orders/hwswpos/${id}`);
+      await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/${id}`);
       addActivityLog("Deleted", "HW/SW POs", `HW/SW PO deleted — PO#: ${order?.po_no || id}`);
       alert("✅ Hardware & Software PO deleted successfully!");
       fetchHardwareSoftwarePosOrders();
@@ -2505,22 +2505,22 @@ const TextPreview = ({ fileUrl }) => {
 
 
 const PodFilesSection = ({ order, orderType, setSelectedOrder }) => {
-  const uploadUrl  = `http://localhost:8081/orders/${orderType}/${order.id}/pod-files`;
-  const refreshUrl = `http://localhost:8081/orders/${orderType}/${order.id}/pod-files`;
+  const uploadUrl  = `http://https://employee-directory-application-xzt1.onrender.com/orders/${orderType}/${order.id}/pod-files`;
+  const refreshUrl = `http://https://employee-directory-application-xzt1.onrender.com/orders/${orderType}/${order.id}/pod-files`;
 
   const deleteUrl = (id) => {
-    if (orderType === 'avpos')    return `http://localhost:8081/orders/avpos/pod-files/${id}`;
-    if (orderType === 'hwswpos')  return `http://localhost:8081/orders/hwswpos/pod-files/${id}`;
-    if (orderType === 'hardware') return `http://localhost:8081/orders/hardware/pod-files/${id}`;
-    if (orderType === 'itar')     return `http://localhost:8081/orders/itar/pod-files/${id}`;
-    return `http://localhost:8081/orders/${orderType}/pod-files/${id}`;
+    if (orderType === 'avpos')    return `http://https://employee-directory-application-xzt1.onrender.com/orders/avpos/pod-files/${id}`;
+    if (orderType === 'hwswpos')  return `http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/pod-files/${id}`;
+    if (orderType === 'hardware') return `http://https://employee-directory-application-xzt1.onrender.com/orders/hardware/pod-files/${id}`;
+    if (orderType === 'itar')     return `http://https://employee-directory-application-xzt1.onrender.com/orders/itar/pod-files/${id}`;
+    return `http://https://employee-directory-application-xzt1.onrender.com/orders/${orderType}/pod-files/${id}`;
   };
 
   const acceptFormats = "image/*,.pdf,.xlsx,.xls,.doc,.docx,.txt,.csv";
 
   // ✅ Ek hi getPreview - saaf aur simple
   const getPreview = (file) => {
-    const url  = `http://localhost:8081/uploads/${file.filename}`;
+    const url  = `http://https://employee-directory-application-xzt1.onrender.com/uploads/${file.filename}`;
     const name = (file.original_name || file.filename || '').toLowerCase().trim();
 
     const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/.test(name);
@@ -2611,7 +2611,7 @@ const PodFilesSection = ({ order, orderType, setSelectedOrder }) => {
 
               {/* Download */}
               <div style={{ padding: "12px 14px", borderTop: "1px solid #f0f0f0", display: "flex", justifyContent: "center", background: "white" }}>
-                <a href={`http://localhost:8081/uploads/${file.filename}`}
+                <a href={`http://https://employee-directory-application-xzt1.onrender.com/uploads/${file.filename}`}
                   target="_blank" rel="noreferrer" download={file.original_name}
                   style={{ background: "#17a2b8", color: "white", padding: "7px 22px", borderRadius: "5px", fontSize: "12px", fontWeight: "600", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px" }}>
                   📥 Download POD File
@@ -3987,7 +3987,7 @@ const PodFilesSection = ({ order, orderType, setSelectedOrder }) => {
       {Array.isArray(itarPodFiles) && itarPodFiles.length > 0 ? (
         itarPodFiles.map((file, fi) => (
           <div key={file.id || fi} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-            <a href={`http://localhost:8081/uploads/${file.filename}`}
+            <a href={`http://https://employee-directory-application-xzt1.onrender.com/uploads/${file.filename}`}
               target="_blank" rel="noreferrer" download={file.original_name}
               style={{ background: "linear-gradient(135deg,#1e3a5f,#2d5a9e)", color: "white",
                 padding: "8px 16px", borderRadius: "8px", fontSize: "13px", fontWeight: "600",
@@ -3996,7 +3996,7 @@ const PodFilesSection = ({ order, orderType, setSelectedOrder }) => {
             </a>
             <button onClick={async () => {
                 if (!window.confirm('Delete this POD file?')) return;
-                await axios.delete(`http://localhost:8081/orders/itar/pod-files/${file.id}`);
+                await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/orders/itar/pod-files/${file.id}`);
                 setItarPodFiles(prev => prev.filter((_,i) => i !== fi));
               }}
               style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca",
@@ -4260,7 +4260,7 @@ const PodFilesSection = ({ order, orderType, setSelectedOrder }) => {
     onClick={async () => {
   setSelectedItarOrder(order);
   try {
-    const podRes = await axios.get(`http://localhost:8081/orders/itar/${order.id}/pod-files`);
+    const podRes = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/orders/itar/${order.id}/pod-files`);
     setSelectedItarOrder({ ...order, pod_files: podRes.data });
   } catch (e) {
     setSelectedItarOrder({ ...order, pod_files: [] });
@@ -4381,7 +4381,7 @@ const PodFilesSection = ({ order, orderType, setSelectedOrder }) => {
   setEditingItarOrderId(order.id);
   setItarPodFiles([]);
   try {
-    const podRes = await axios.get(`http://localhost:8081/orders/itar/${order.id}/pod-files`);
+    const podRes = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/orders/itar/${order.id}/pod-files`);
     setItarPodFiles(podRes.data);
   } catch (e) {
     console.log('No pod files');
@@ -4671,7 +4671,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
           if (!extractedLink) return alert('No payment link found in comments');
           setSending(true);
           try {
-            const res = await fetch('http://localhost:8081/resend-payment-link', {
+            const res = await fetch('http://https://employee-directory-application-xzt1.onrender.com/resend-payment-link', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -5032,7 +5032,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
             ));
     formData.append('description', desc || '');
 
-   const res = await fetch('http://localhost:8081/tickets', {
+   const res = await fetch('http://https://employee-directory-application-xzt1.onrender.com/tickets', {
       method: 'POST',
       body: formData,       
     });
@@ -5453,7 +5453,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
       {Array.isArray(hardwarePodFiles) && hardwarePodFiles.length > 0 ? (
         hardwarePodFiles.map((file, fi) => (
           <div key={file.id || fi} style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-            <a href={`http://localhost:8081/uploads/${file.filename}`}
+            <a href={`http://https://employee-directory-application-xzt1.onrender.com/uploads/${file.filename}`}
               target="_blank" rel="noreferrer" download={file.original_name}
               style={{ background: "linear-gradient(135deg,#1e3a5f,#2d5a9e)", color: "white",
                 padding: "8px 16px", borderRadius: "8px", fontSize: "13px", fontWeight: "600",
@@ -5462,7 +5462,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
             </a>
             <button onClick={async () => {
                 if (!window.confirm('Delete this POD file?')) return;
-                await axios.delete(`http://localhost:8081/orders/hardware/pod-files/${file.id}`);
+                await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/orders/hardware/pod-files/${file.id}`);
                 setHardwarePodFiles(prev => prev.filter((_,i) => i !== fi));
               }}
               style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca",
@@ -5689,7 +5689,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
       console.log("🔍 item.id:", item.id);
       if (!item.id) continue;
       try {
-        const res = await axios.get(`http://localhost:8081/warranty/${item.id}`);
+        const res = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/warranty/${item.id}`);
         console.log("✅ warranty response:", res.data);
         if (res.data) {
           results[item.id] = {
@@ -5708,7 +5708,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
 
   }
   try {
-    const podRes = await axios.get(`http://localhost:8081/orders/hardware/${order.id}/pod-files`);
+    const podRes = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/orders/hardware/${order.id}/pod-files`);
     setSelectedHardwareOrder({ ...order, pod_files: podRes.data });
   } catch (e) {
     setSelectedHardwareOrder({ ...order, pod_files: [] });
@@ -5806,7 +5806,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
   setEditingHardwareOrderId(order.id);
   setHardwarePodFiles([]);
   try {
-    const podRes = await axios.get(`http://localhost:8081/orders/hardware/${order.id}/pod-files`);
+    const podRes = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/orders/hardware/${order.id}/pod-files`);
     setHardwarePodFiles(podRes.data);
   } catch (e) {
     console.log('No pod files');
@@ -5901,7 +5901,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
 
            {activeOrdersPage === "hardware-orders-detail" && selectedHardwareOrder && (() => {
   const order   = selectedHardwareOrder;
-  const BASE    = 'http://localhost:8081';
+  const BASE    = 'http://https://employee-directory-application-xzt1.onrender.com';
   const items   = Array.isArray(order.items) && order.items.length > 0 ? order.items : [];
 
   const getKey = (item, lineNo) => {
@@ -6423,7 +6423,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
     formData.append('description', desc || '');
 
 
-    const res = await fetch('http://localhost:8081/tickets', {
+    const res = await fetch('http://https://employee-directory-application-xzt1.onrender.com/tickets', {
       method: 'POST',
       body: formData, // ✅ Content-Type automatically set hoga
     });
@@ -6901,7 +6901,7 @@ const getDescription = (partNumber, manufacturerName, productType) => {
                     {file.original_name || file.filename}
                   </span>
                   <a
-                    href={`http://localhost:8081/uploads/${file.filename}`}
+                    href={`http://https://employee-directory-application-xzt1.onrender.com/uploads/${file.filename}`}
                     target="_blank"
                     rel="noreferrer"
                     style={{ fontSize: "12px", color: "#059669", fontWeight: "600", textDecoration: "none" }}
@@ -6913,14 +6913,14 @@ const getDescription = (partNumber, manufacturerName, productType) => {
                     onClick={async () => {
   if (!window.confirm(`POD File ${fi + 1} delete karna chahte ho?`)) return;
   try {
-    await axios.delete(`http://localhost:8081/orders/avpos/pod-files/${file.id}`);
+    await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/orders/avpos/pod-files/${file.id}`);
     
     // ✅ Step 1: avPosOrders refresh karo aur wait karo
     await fetchAvPosOrders();
     setAvPosFileRefreshKey(prev => prev + 1);
     
     // ✅ Step 2: selectedAvPosOrder ko fresh pod_files se update karo
-    const freshFilesRes = await axios.get(`http://localhost:8081/orders/avpos/${selectedAvPosOrder.id}/pod-files`);
+    const freshFilesRes = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/orders/avpos/${selectedAvPosOrder.id}/pod-files`);
     setSelectedAvPosOrder(prev => ({
       ...prev,
       pod_files: freshFilesRes.data
@@ -8003,7 +8003,7 @@ value={hardwareSoftwarePosOrderForm.userId}
     <div style={{ fontSize: "12px", fontWeight: "700", color: "#0369a1", marginBottom: "8px" }}>📎 Existing POD Files:</div>
     {selectedHwSwPosOrder.pod_files.map((file, fi) => (
       <div key={file.id || fi} style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-        <a href={`http://localhost:8081/uploads/${file.filename}`}
+        <a href={`http://https://employee-directory-application-xzt1.onrender.com/uploads/${file.filename}`}
           target="_blank" rel="noreferrer"
           style={{ color: "#2563eb", fontSize: "13px", textDecoration: "underline", flex: 1 }}>
           📄 {file.original_name}
@@ -8011,7 +8011,7 @@ value={hardwareSoftwarePosOrderForm.userId}
         <button type="button"
           onClick={async () => {
             try {
-              await axios.delete(`http://localhost:8081/orders/hwswpos/pod-files/${file.id}`);
+              await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/pod-files/${file.id}`);
               setSelectedHwSwPosOrder(prev => ({
                 ...prev,
                 pod_files: prev.pod_files.filter(f => f.id !== file.id)
@@ -8219,7 +8219,7 @@ value={hardwareSoftwarePosOrderForm.userId}
   setSelectedHwSwPosOrder({ ...order, pod_files: [] });
   setActiveOrdersPage('hwswpos-detail');
   try {
-    const res = await axios.get(`http://localhost:8081/orders/hwswpos/${order.id}/pod-files`);
+    const res = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/${order.id}/pod-files`);
     setSelectedHwSwPosOrder(prev => ({ ...prev, pod_files: res.data }));
   } catch (e) {
     console.log('No pod files found');
@@ -8315,7 +8315,7 @@ value={hardwareSoftwarePosOrderForm.userId}
     setEditingHardwareSoftwarePosOrderId(order.id);
     setSelectedHwSwPosOrder({ ...order, pod_files: [] });
     try {
-      const podRes = await axios.get(`http://localhost:8081/orders/hwswpos/${order.id}/pod-files`);
+      const podRes = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/${order.id}/pod-files`);
       setSelectedHwSwPosOrder({ ...order, pod_files: podRes.data });
     } catch (e) {}
     setActiveOrdersPage('hardware-software-pos-create');
@@ -8473,7 +8473,7 @@ value={hardwareSoftwarePosOrderForm.userId}
   // ✅ Pod files fetch karo
   setSelectedHwSwPosOrder({ ...order, pod_files: [] });
   try {
-    const podRes = await axios.get(`http://localhost:8081/orders/hwswpos/${order.id}/pod-files`);
+    const podRes = await axios.get(`http://https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/${order.id}/pod-files`);
     setSelectedHwSwPosOrder({ ...order, pod_files: podRes.data });
   } catch (e) {
     console.log('No pod files');
@@ -9359,7 +9359,7 @@ value={hardwareSoftwarePosOrderForm.userId}
   onClick={async () => {
     if (window.confirm(`Delete manufacturer "${m.name}"?`)) {
       try {
-        await axios.delete(`http://localhost:8081/manufacturers/${m.id}`);
+        await axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/manufacturers/${m.id}`);
         addActivityLog("Deleted", "Manufacturer", `Manufacturer deleted — Name: ${m.name}, Type: ${m.productType}`);
         alert("✅ Manufacturer deleted!");
         fetchManufacturers();
@@ -9981,7 +9981,7 @@ value={hardwareSoftwarePosOrderForm.userId}
     <button
       onClick={() => {
         if (window.confirm(`Delete role "${role.role_name}"?`)) {
-          axios.delete(`http://localhost:8081/roles/${role.id}`)
+          axios.delete(`http://https://employee-directory-application-xzt1.onrender.com/roles/${role.id}`)
             .then(() => {
               alert("✅ Role deleted!");
               addActivityLog("Deleted", "Role Management", `Role deleted — Name: ${role.role_name}`);
@@ -11213,7 +11213,7 @@ value={hardwareSoftwarePosOrderForm.userId}
                 return;
               }
               try {
-                await axios.post("http://localhost:8081/roles", {
+                await axios.post("http://https://employee-directory-application-xzt1.onrender.com/roles", {
                   role_name: quickRoleName.trim(),
                   permissions: quickRolePermissions,
                   created_by: user?.id || null

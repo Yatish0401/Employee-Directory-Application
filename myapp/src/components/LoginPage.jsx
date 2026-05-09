@@ -672,7 +672,7 @@ function Login() {
     if (Object.keys(formErrors).length === 0) {
       setLoading(true);
       try {
-        const response = await axios.post("http://localhost:8081/login", {
+        const response = await axios.post("https://employee-directory-application-xzt1.onrender.com/login", {
           ...values,
           captcha: captchaValue,
         });
@@ -680,7 +680,7 @@ function Login() {
           const userData = response.data.user || response.data;
           localStorage.setItem("user", JSON.stringify(userData));
           try {
-            await axios.post("http://localhost:8081/activity", {
+            await axios.post("https://employee-directory-application-xzt1.onrender.com/activity", {
               userId: userData.id,
               userName: userData.name || userData.username,
               action: "Login",

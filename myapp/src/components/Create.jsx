@@ -77,7 +77,7 @@ function Create() {
 
       const profileData = { ...values, userId: user.id };
 
-      axios.post("http://localhost:8081/users", profileData)
+      axios.post("http://https://employee-directory-application-xzt1.onrender.com/users", profileData)
         .then(() => {
           alert("Profile created successfully!");
           navigate("/");

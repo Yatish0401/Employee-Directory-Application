@@ -28,7 +28,7 @@ function OtpLogin() {
     setErrors({});
 
     try {
-      const res = await axios.post("http://localhost:8081/send-email-otp", {
+      const res = await axios.post("http://https://employee-directory-application-xzt1.onrender.com/send-email-otp", {
         email: email.trim(),
       });
 
@@ -68,7 +68,7 @@ function OtpLogin() {
     setErrors({});
 
     try {
-      const res = await axios.post("http://localhost:8081/verify-email-otp", {
+      const res = await axios.post("http://https://employee-directory-application-xzt1.onrender.com/verify-email-otp", {
         email: email.trim(),
         otp: otp.trim(),
       });

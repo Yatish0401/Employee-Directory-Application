@@ -11,7 +11,7 @@ const axios = require("axios");
 const app = express();
 app.use(
   cors({
-    origin: "https://employee-directory-application-tan.vercel.app/",
+    origin: "https://employee-directory-application-tan.vercel.app",
     credentials: true,
   })
 );

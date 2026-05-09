@@ -36,7 +36,7 @@ function Update() {
     useEffect(() => {
         // Fetch profile data
         axios
-            .get("http://localhost:8081/users/" + id)
+            .get("http://https://employee-directory-application-xzt1.onrender.com/users/" + id)
             .then((res) => {
                 const profileData = res.data;
                 setUserId(profileData.user_id);
@@ -44,7 +44,7 @@ function Update() {
                 // Fetch user account data (role and permissions)
                 if (profileData.user_id) {
                     axios
-                        .get(`http://localhost:8081/users/${profileData.user_id}/full`)
+                        .get(`http://https://employee-directory-application-xzt1.onrender.com/users/${profileData.user_id}/full`)
                         .then((userRes) => {
                             let perms = [];
                             if (userRes.data.permissions) {
@@ -107,7 +107,7 @@ function Update() {
         
         // Update profile data
         axios
-            .put(`http://localhost:8081/profiles/${id}`, {
+            .put(`http://https://employee-directory-application-xzt1.onrender.com/profiles/${id}`, {
                 name: values.name,
                 email: values.email,
                 phone: values.phone
@@ -118,7 +118,7 @@ function Update() {
                 if (userId) {
                     console.log("🔄 Sending role/permissions update to user ID:", userId);
                     axios
-                        .put(`http://localhost:8081/account/${userId}/role-permissions`, {
+                        .put(`http://https://employee-directory-application-xzt1.onrender.com/account/${userId}/role-permissions`, {
                             role: values.role,
                             permissions: values.permissions
                         })
