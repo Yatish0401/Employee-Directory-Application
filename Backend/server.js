@@ -30,14 +30,11 @@ const transporter = nodemailer.createTransport({
 
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: "127.0.0.1",
+  host: "mysql.railway.internal",
   user: "root",
-  password: "admin",
-  database: "login",
+  password: "LdwhcjJoDvqQLkVuPZECVKsRNskqBkuC",
+  database: "railway",
   port: 3306,
-   charset: "utf8mb4", 
-  waitForConnections: true,
-  queueLimit: 0
 });
 
 pool.getConnection((err, connection) => {
