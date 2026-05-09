@@ -71,7 +71,7 @@ function Forgot() {
       setLoading(true);
 
       try {
-        await axios.post("http://https://employee-directory-application-xzt1.onrender.com/reset-password", values);
+        await axios.post("https://employee-directory-application-xzt1.onrender.com/reset-password", values);
         alert("Password reset successfully!");
         navigate("/login");
       } catch (error) {

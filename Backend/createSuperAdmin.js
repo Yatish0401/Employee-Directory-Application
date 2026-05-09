@@ -115,7 +115,7 @@ function createFirstSuperAdmin() {
             console.log(`📱 Phone: ${superAdminData.phone}`);
             console.log(`🛡️  Role: ${superAdminData.role}`);
             console.log("═══════════════════════════════════════\n");
-            console.log("🔗 Login at: http://localhost:3000/superadmin-login");
+            console.log("🔗 Login at: https://localhost:3000/superadmin-login");
             console.log("⚠️  Change the default password after first login!\n");
             
             db.end();

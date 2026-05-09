@@ -259,7 +259,7 @@ function Signup() {
 
   const fetchRoles = async () => {
     try {
-      const response = await axios.get("http://https://employee-directory-application-xzt1.onrender.com/roles");
+      const response = await axios.get("https://employee-directory-application-xzt1.onrender.com/roles");
       console.log("✅ Roles fetched:", response.data);
 
       // Filter out superadmin from signup options
@@ -364,7 +364,7 @@ function Signup() {
         });
 
         const res = await axios.post(
-          "http://https://employee-directory-application-xzt1.onrender.com/signup",
+          "https://employee-directory-application-xzt1.onrender.com/signup",
           {
             name: values.name,
             username: values.username,
@@ -429,7 +429,7 @@ if (res.data.message === "User created successfully" || res.data.success) {
           console.error("Server response:", err.response.data);
         } else if (err.request) {
           errorMessage =
-            "⚠️ Cannot connect to server. Please check if server is running on http://https://employee-directory-application-xzt1.onrender.com";
+            "⚠️ Cannot connect to server. Please check if server is running on https://employee-directory-application-xzt1.onrender.com";
         } else {
           errorMessage = `⚠️ Request error: ${err.message}`;
         }

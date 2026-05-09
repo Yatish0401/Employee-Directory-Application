@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_ROOT = "http://https://employee-directory-application-xzt1.onrender.com";
+const API_ROOT = "https://employee-directory-application-xzt1.onrender.com";
 
 function SuperAdminDashboard() {
   const navigate = useNavigate();

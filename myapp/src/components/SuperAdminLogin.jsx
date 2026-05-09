@@ -63,7 +63,7 @@ function SuperAdminLogin() {
     try {
       console.log("🔵 Sending login request...");  // ADD THIS
       
-      const response = await axios.post("http://https://employee-directory-application-xzt1.onrender.com/login", {
+      const response = await axios.post("https://employee-directory-application-xzt1.onrender.com/login", {
         ...values,
         captcha: "bypass",
       });

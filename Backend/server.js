@@ -2726,7 +2726,7 @@ app.post('/resend-payment-link', async (req, res) => {
 });
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {
-  console.log(`\n🚀 Server running at http://localhost:${PORT}`);
+  console.log(`\n🚀 Server running at https://localhost:${PORT}`);
   console.log(`✅ ALL FIXES APPLIED - UPPERCASE role support enabled`);
   console.log(`✅ ALL routes ready including 4 Order tables`);
 });
