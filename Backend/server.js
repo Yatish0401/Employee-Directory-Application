@@ -8,10 +8,6 @@ const bcrypt = require("bcrypt");
 require("dotenv").config({ path: "./captcha.env" });
 const axios = require("axios");
 
-const pool = mysql.createPool(
-  "mysql://root:LdwhcjJoDvqQLkVuPZECVKsRNskqBkuC@viaduct.proxy.rlwy.net:43956/railway"
-);
-
 const app = express();
 app.use(
   cors({
@@ -34,11 +30,11 @@ const transporter = nodemailer.createTransport({
 
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: "mysql://root:LdwhcjJoDvqQLkVuPZECVKsRNskqBkuC@viaduct.proxy.rlwy.net:43956/railway",
+  host: "viaduct.proxy.rlwy.net",
   user: "root",
   password: "LdwhcjJoDvqQLkVuPZECVKsRNskqBkuC",
   database: "railway",
-  port: 3306,
+  port: 43956,
 });
 
 pool.getConnection((err, connection) => {
