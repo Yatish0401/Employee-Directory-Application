@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import ReCAPTCHA from "react-google-recaptcha";
+// import ReCAPTCHA from "react-google-recaptcha";
 
 const STYLE_ID = "signup-component-styles-v2";
 
@@ -250,7 +250,7 @@ function Signup() {
   const [theme, setTheme] = useState("mint");
   const [roles, setRoles] = useState([]);
   const [rolesLoaded, setRolesLoaded] = useState(false); // ✅ Track loading state
-  const recaptchaRef = useRef(null);
+  // const recaptchaRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -401,7 +401,7 @@ if (res.data.message === "User created successfully" || res.data.success) {
           } else {
             alert("✅ Account created successfully! Please login.");
           }
-          if (recaptchaRef.current) recaptchaRef.current.reset();
+          // if (recaptchaRef.current) recaptchaRef.current.reset();
           navigate("/login");
         } else {
           setErrors({
@@ -409,10 +409,10 @@ if (res.data.message === "User created successfully" || res.data.success) {
           });
           if (
             res.data.error &&
-            /captcha/i.test(res.data.error) &&
-            recaptchaRef.current
+            /captcha/i.test(res.data.error)
+            // recaptchaRef.current
           ) {
-            recaptchaRef.current.reset();
+            // recaptchaRef.current.reset();
             // setCaptchaValue("");
           }
         }
@@ -436,12 +436,12 @@ if (res.data.message === "User created successfully" || res.data.success) {
 
         setErrors({ general: errorMessage });
 
-        if (recaptchaRef.current) {
-          try {
-            recaptchaRef.current.reset();
-          } catch (e) {}
-          // setCaptchaValue("");
-        }
+        // if (recaptchaRef.current) {
+        //   try {
+        //     recaptchaRef.current.reset();
+        //   } catch (e) {}
+        //   // setCaptchaValue("");
+        // }
       } finally {
         setLoading(false);
       }
@@ -664,13 +664,13 @@ if (res.data.message === "User created successfully" || res.data.success) {
           </div>
 
           {/* ReCAPTCHA */}
-          <div className="mb-3 recaptcha-container" style={{ display: "flex", justifyContent: "center" }}>
+          {/* <div className="mb-3 recaptcha-container" style={{ display: "flex", justifyContent: "center" }}>
             <ReCAPTCHA
               sitekey="6LebAwgsAAAAAAy1a78kvOKk9qpWhVrT4POAfilH"
               onChange={handleCaptcha}
               ref={recaptchaRef}
             />
-          </div>
+          </div> */}
 
           <button
             type="submit"

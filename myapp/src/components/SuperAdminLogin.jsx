@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import ReCAPTCHA from "react-google-recaptcha";
+// import ReCAPTCHA from "react-google-recaptcha";
 
 function SuperAdminLogin() {
   const [values, setValues] = useState({
@@ -9,7 +9,7 @@ function SuperAdminLogin() {
     password: "",
   });
 
-  const [captchaValue, setCaptchaValue] = useState(null); // ✅ null instead of ""
+  // const [captchaValue, setCaptchaValue] = useState(null); // ✅ null instead of ""
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -52,10 +52,10 @@ function SuperAdminLogin() {
       return;
     }
 
-    if (!captchaValue) {
-      setErrors({ general: "⚠️ Please verify CAPTCHA before login." });
-      return;
-    }
+    // if (!captchaValue) {
+    //   setErrors({ general: "⚠️ Please verify CAPTCHA before login." });
+    //   return;
+    // }
 
     setErrors({});
     setLoading(true);
@@ -179,19 +179,19 @@ function SuperAdminLogin() {
             )}
           </div>
 
-          <div className="d-flex justify-content-center my-3">
+          {/* <div className="d-flex justify-content-center my-3">
             <ReCAPTCHA
               sitekey="6LebAwgsAAAAAAy1a78kvOKk9qpWhVrT4POAfilH"
               onChange={(value) => {
                 console.log("✅ CAPTCHA value set:", value ? "received" : "null");
-                setCaptchaValue(value);
+                // setCaptchaValue(value);
               }}
               onExpired={() => {
                 console.log("⚠️ CAPTCHA expired");
                 setCaptchaValue(null);
               }}
             />
-          </div>
+          </div> */}
 
           <button
             type="submit"
