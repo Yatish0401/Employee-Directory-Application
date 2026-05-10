@@ -343,6 +343,7 @@ function createOrderTables() {
         }
       });
     });
+    createMissingTables();
   }, 1000);
 }
  
@@ -380,6 +381,110 @@ pool.query(`CREATE TABLE IF NOT EXISTS user_activity (
 });
 
 // Log activity
+
+function createMissingTables() {
+
+  // 1. manufacturers
+  pool.query(`CREATE TABLE IF NOT EXISTS manufacturers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    product_type VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`, (err) => {
+    if (err) console.error('❌ manufacturers:', err.message);
+    else console.log('✅ manufacturers table ready');
+  });
+
+  // 2. hardware_warranty
+  pool.query(`CREATE TABLE IF NOT EXISTS hardware_warranty (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    hardware_order_id INT,
+    hardware_order_inline_id INT,
+    serial_number VARCHAR(150),
+    product_name VARCHAR(255),
+    purchase_date DATE,
+    expiry_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
+    INDEX idx_hw_order (hardware_order_id),
+    INDEX idx_hw_inline (hardware_order_inline_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`, (err) => {
+    if (err) console.error('❌ hardware_warranty:', err.message);
+    else console.log('✅ hardware_warranty table ready');
+  });
+
+  // 3. order_pod_files  (used by ITAR orders)
+  pool.query(`CREATE TABLE IF NOT EXISTS order_pod_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    order_type VARCHAR(50) NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_opf_order (order_id, order_type)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`, (err) => {
+    if (err) console.error('❌ order_pod_files:', err.message);
+    else console.log('✅ order_pod_files table ready');
+  });
+
+  // 4. hardware_pod_files
+  pool.query(`CREATE TABLE IF NOT EXISTS hardware_pod_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    order_type VARCHAR(50) DEFAULT 'hardware',
+    filename VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_hpf_order (order_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`, (err) => {
+    if (err) console.error('❌ hardware_pod_files:', err.message);
+    else console.log('✅ hardware_pod_files table ready');
+  });
+
+  // 5. av_pos_pod_files
+  pool.query(`CREATE TABLE IF NOT EXISTS av_pos_pod_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    av_pos_order_id INT NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_avpf_order (av_pos_order_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`, (err) => {
+    if (err) console.error('❌ av_pos_pod_files:', err.message);
+    else console.log('✅ av_pos_pod_files table ready');
+  });
+
+  // 6. hwswpos_pod_files
+  pool.query(`CREATE TABLE IF NOT EXISTS hwswpos_pod_files (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_hwswpf_order (order_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`, (err) => {
+    if (err) console.error('❌ hwswpos_pod_files:', err.message);
+    else console.log('✅ hwswpos_pod_files table ready');
+  });
+
+  // 7. tickets
+  pool.query(`CREATE TABLE IF NOT EXISTS tickets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    order_type VARCHAR(50),
+    line_no INT,
+    item_id INT,
+    email VARCHAR(191),
+    comment TEXT,
+    image_path VARCHAR(255),
+    image_filename VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ticket_order (order_id, order_type)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`, (err) => {
+    if (err) console.error('❌ tickets:', err.message);
+    else console.log('✅ tickets table ready');
+  });
+}
 
 app.post('/activity', (req, res) => {
   const { userId, userName, action, module, details } = req.body;
