@@ -1186,14 +1186,14 @@ app.post("/login", async (req, res) => {
 
   // if (!captcha) return res.status(400).json({ message: "Captcha Missing" });
 
-  try {
-    const captchaResponse = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
-      params: { secret: process.env.RECAPTCHA_SECRET_KEY },
-    });
+  // try {
+  //   const captchaResponse = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
+  //     params: { secret: process.env.RECAPTCHA_SECRET_KEY },
+  //   });
 
-    if (!captchaResponse.data.success && process.env.NODE_ENV === "production") {
-      return res.status(403).json({ message: "Captcha verification failed" });
-    }
+  //   if (!captchaResponse.data.success && process.env.NODE_ENV === "production") {
+  //     return res.status(403).json({ message: "Captcha verification failed" });
+  //   }
 
     let sql;
     if (/^\d{10}$/.test(identifier)) {
@@ -1242,9 +1242,9 @@ app.post("/login", async (req, res) => {
         }
       );
     });
-  } catch (error) {
-    res.status(500).json({ message: "Captcha verification failed" });
-  }
+  // } catch (error) {
+  //   res.status(500).json({ message: "Captcha verification failed" });
+  // }
 });
 
 app.post("/send-email-otp", (req, res) => {
