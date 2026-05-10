@@ -44,7 +44,7 @@ function OtpLogin() {
     // Step 2: EmailJS se email bhejo
    await emailjs.send(
   "service_8j2np2q",
-  "ssodxvh",
+   "template_edr0hvv",
   {
     to_email: email.trim(),
     email: email.trim(),
