@@ -51,10 +51,8 @@ function OtpLogin() {
     passcode: res.data.otp,
     time: "10 minutes",
   },
-   "8lzzK6LWO4ix_yiNH" 
- 
+  "8lzzK6LWO4ix_yiNH"
 );
-
     setOtpSent(true);
     alert("✅ OTP sent to your email!");
 
