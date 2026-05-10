@@ -1266,7 +1266,10 @@ app.post("/send-email-otp", (req, res) => {
     };
 
     transporter.sendMail(mailOptions, (error) => {
-      if (error) return res.status(500).json({ success: false, message: "Failed to send OTP" });
+      if (error) {
+        console.log("EMAIL ERROR:", error.message);
+        return res.status(500).json({ success: false, message: "Failed to send OTP" });
+      }
       res.json({ success: true, message: "OTP sent successfully" });
     });
   });
