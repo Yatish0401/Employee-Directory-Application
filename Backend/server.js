@@ -19,13 +19,11 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  service: "gmail",
   auth: {
-    user: "yatish0401@gmail.com",
-    pass: "vozw ujef cgbu rjgw",
-  },
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_APP_PASS
+  }
 });
 
 const pool = mysql.createPool({
