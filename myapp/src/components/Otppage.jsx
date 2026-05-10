@@ -58,9 +58,11 @@ function OtpLogin() {
     alert("✅ OTP sent to your email!");
 
   } catch (err) {
-    console.error("❌ OTP Error:", err);
-    setErrors({ general: "Failed to send OTP. Please try again." });
-  } finally {
+  console.error("❌ Full Error:", JSON.stringify(err));
+  console.error("❌ Error text:", err?.text);
+  console.error("❌ Error status:", err?.status);
+  setErrors({ general: err?.text || "Failed to send OTP. Please try again." });
+}finally {
     setLoading(false);
   }
 };
