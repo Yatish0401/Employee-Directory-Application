@@ -1250,32 +1250,23 @@ app.post("/login", async (req, res) => {
   // }
 });
 
-app.post("/send-email-otp", (req, res) => {
+app.post("/generate-otp", (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ success: false, message: "Email required" });
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const otpCreatedAt = new Date();
 
-  pool.query("UPDATE usersTest SET otp = ?, otp_created_at = ? WHERE email = ?", [otp, otpCreatedAt, email.trim()], (err, result) => {
-    if (err) return res.status(500).json({ success: false, message: "Database error" });
-    if (result.affectedRows === 0) return res.status(404).json({ success: false, message: "Email not found" });
+  pool.query(
+    "UPDATE usersTest SET otp = ?, otp_created_at = ? WHERE email = ?",
+    [otp, otpCreatedAt, email.trim()],
+    (err, result) => {
+      if (err) return res.status(500).json({ success: false, message: "Database error" });
+      if (result.affectedRows === 0) return res.status(404).json({ success: false, message: "Email not found" });
 
-    const mailOptions = {
-      from: "yatish0401@gmail.com",
-      to: email,
-      subject: "Your OTP Code",
-      text: `Your OTP is ${otp}. Valid for 30 days.`,
-    };
-
-    transporter.sendMail(mailOptions, (error) => {
-      if (error) {
-        console.log("EMAIL ERROR:", error.message);
-        return res.status(500).json({ success: false, message: "Failed to send OTP" });
-      }
-      res.json({ success: true, message: "OTP sent successfully" });
-    });
-  });
+      res.json({ success: true, otp: otp });
+    }
+  );
 });
 
 app.post("/verify-email-otp", (req, res) => {

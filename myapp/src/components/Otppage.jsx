@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
+import emailjs from "@emailjs/browser";
 
 function OtpLogin() {
   const [errors, setErrors] = useState({});
@@ -19,37 +20,49 @@ function OtpLogin() {
   }, [location.state]);
 
   const sendOtp = async () => {
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setErrors({ general: "Please enter a valid email address" });
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setErrors({ general: "Please enter a valid email address" });
+    return;
+  }
+
+  setLoading(true);
+  setErrors({});
+
+  try {
+    // Step 1: Backend se OTP generate karwao aur DB mein save karo
+    const res = await axios.post("https://employee-directory-application-xzt1.onrender.com/generate-otp", {
+      email: email.trim(),
+    });
+
+    if (!res.data.success) {
+      setErrors({ general: res.data.message || "Failed to generate OTP" });
       return;
     }
 
-    setLoading(true);
-    setErrors({});
+    const generatedOtp = res.data.otp;
 
-    try {
-      const res = await axios.post("https://employee-directory-application-xzt1.onrender.com/send-email-otp", {
+    // Step 2: EmailJS se email bhejo
+    await emailjs.send(
+      "service_8j2np2q",
+      "ssodxvh",
+      {
         email: email.trim(),
-      });
+        passcode: generatedOtp,
+        time: "10 minutes",
+      },
+      "8lzzK6LWO4ix_yiNH"
+    );
 
-      if (res.data.success) {
-        setOtpSent(true);
-        console.log("✅ OTP generated:", res.data.otp); 
-        alert("✅ OTP sent to your email, Check your inbox and Database ");
-      } else {
-        setErrors({ general: res.data.message || "Failed to send OTP" });
-      }
-    } catch (err) {
-      console.error("❌ OTP Send Error:", err.response?.data || err.message);
-      if (err.response?.status === 404) {
-        setErrors({ general: "Email not found. Please check your email or sign up first." });
-      } else {
-        setErrors({ general: "Failed to send OTP. Please try again." });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    setOtpSent(true);
+    alert("✅ OTP sent to your email!");
+
+  } catch (err) {
+    console.error("❌ OTP Error:", err);
+    setErrors({ general: "Failed to send OTP. Please try again." });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const verifyOtp = async (e) => {
     e.preventDefault();
