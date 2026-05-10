@@ -43,15 +43,16 @@ function OtpLogin() {
 
     // Step 2: EmailJS se email bhejo
     await emailjs.send(
-      "service_8j2np2q",
-      "ssodxvh",
-      {
-        email: email.trim(),
-        passcode: generatedOtp,
-        time: "10 minutes",
-      },
-      "8lzzK6LWO4ix_yiNH"
-    );
+  "service_8j2np2q",
+  "ssodxvh",
+  {
+    to_email: email.trim(),
+    email: email.trim(),
+    passcode: res.data.otp,
+    time: "10 minutes",
+  },
+  "8lzzK6LWO4ix_yiNH"
+);
 
     setOtpSent(true);
     alert("✅ OTP sent to your email!");
