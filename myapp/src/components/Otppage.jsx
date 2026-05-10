@@ -42,7 +42,7 @@ function OtpLogin() {
     const generatedOtp = res.data.otp;
 
     // Step 2: EmailJS se email bhejo
-    await emailjs.send(
+   await emailjs.send(
   "service_8j2np2q",
   "ssodxvh",
   {
@@ -50,8 +50,8 @@ function OtpLogin() {
     email: email.trim(),
     passcode: res.data.otp,
     time: "10 minutes",
-  },
-  "8lzzK6LWO4ix_yiNH"
+  }
+ 
 );
 
     setOtpSent(true);
