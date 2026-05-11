@@ -2849,15 +2849,13 @@ app.get('/tickets/:orderType/:orderId', (req, res) => {
 app.post('/resend-payment-link', async (req, res) => {
   const { email, link, itarNo, orderId } = req.body;
   
-  console.log('=== RESEND PAYMENT ===', req.body);
-  
   if (!email || !link) {
     return res.status(400).json({ error: 'Email and link required' });
   }
 
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
       to: email,
       subject: `Payment Link — ITAR Order #${itarNo || orderId}`,
       html: `
@@ -2874,10 +2872,11 @@ app.post('/resend-payment-link', async (req, res) => {
         </div>`
     });
 
+    console.log('✅ Payment link sent to:', email);
     res.json({ success: true, message: 'Payment link sent' });
 
   } catch (err) {
-    console.error('Resend payment error:', err);
+    console.error('❌ Payment email error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
