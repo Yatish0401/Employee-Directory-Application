@@ -1353,8 +1353,48 @@ addActivityLog("Updated", "User Management", `Profile updated — ${userChanges.
   return val.toString().split("T")[0];
 };
 
-    // Handle ITAR Order form submission
-   const handleSaveItarOrder = async () => {
+   
+
+const handleItarPodUpload = async (orderId) => {
+  if (!itarSelectedFiles || itarSelectedFiles.length === 0) return;
+
+  for (const fileObj of itarSelectedFiles) {
+    try {
+      const formData = new FormData();
+      formData.append('file', fileObj.file);
+
+      await axios.post(
+        `https://employee-directory-application-xzt1.onrender.com/orders/itar/${orderId}/pod-files`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      console.log('✅ POD file uploaded:', fileObj.file.name);
+    } catch (err) {
+      console.error('❌ POD upload failed:', err);
+    }
+  }
+
+  // ✅ Files list refresh karo
+  try {
+    const podRes = await axios.get(
+      `https://employee-directory-application-xzt1.onrender.com/orders/itar/${orderId}/pod-files`
+    );
+    setItarPodFiles(podRes.data);
+  } catch (e) {
+    console.error('POD refresh failed:', e);
+  }
+
+  // ✅ Reset file inputs
+  setItarSelectedFiles([]);
+  setItarFileInputs([{ id: Date.now() }]);
+};
+
+
+// ============================================================
+// STEP 2: Yeh pura handleSaveItarOrder replace karo
+// ============================================================
+
+const handleSaveItarOrder = async () => {
   try {
     const isOther = itarOrderForm.manufacturerName?.toLowerCase() === 'other';
 
@@ -1373,12 +1413,12 @@ addActivityLog("Updated", "User Management", `Profile updated — ${userChanges.
       invoiceNo: itarOrderForm.invoiceNo || null,
       orderStatus: itarOrderForm.orderStatus || null,
       username: editingItarOrderId
-  ? (itarOrderForm.username || null)          
-  : (user?.username || user?.name || null),
+        ? (itarOrderForm.username || null)
+        : (user?.username || user?.name || null),
       remark: itarOrderForm.remark || null,
       createdByUserId: user?.id || null,
       items: itarItemRows.map(row => {
-        const rowIsOther = row.manufacturerName?.toLowerCase() === 'other';
+        const rowIsOther    = row.manufacturerName?.toLowerCase() === 'other';
         const rowIsServices = row.productType?.toLowerCase() === 'services';
         return {
           ...row,
@@ -1390,84 +1430,107 @@ addActivityLog("Updated", "User Management", `Profile updated — ${userChanges.
       })
     };
 
+    // ============================================================
+    // EDIT MODE
+    // ============================================================
     if (editingItarOrderId) {
       const oldOrder = itarOrders.find(o => o.id === editingItarOrderId);
       console.log("ITAR oldOrder remark:", oldOrder?.remark);
-console.log("ITAR oldOrder comment:", oldOrder?.comment);
-      await axios.put(`https://employee-directory-application-xzt1.onrender.com/orders/itar/${editingItarOrderId}`, payload);
+      console.log("ITAR oldOrder comment:", oldOrder?.comment);
 
+      // ✅ Order update karo
+      await axios.put(
+        `https://employee-directory-application-xzt1.onrender.com/orders/itar/${editingItarOrderId}`,
+        payload
+      );
+
+      // ✅ POD files upload karo — PUT ke baad
+      await handleItarPodUpload(editingItarOrderId);
+
+      // Activity log — changes track karo
       const changes = [];
-      if (oldOrder?.est_no !== itarOrderForm.estNo) changes.push(`Est#: "${oldOrder?.est_no}" → "${itarOrderForm.estNo}"`);
-      if (normalizeDate(oldOrder?.order_date) !== normalizeDate(itarOrderForm.orderDate)) changes.push(`Order Date: "${normalizeDate(oldOrder?.order_date)}" → "${normalizeDate(itarOrderForm.orderDate)}"`);
-      if (oldOrder?.product_type !== itarOrderForm.productType) changes.push(`Product: "${oldOrder?.product_type}" → "${itarOrderForm.productType}"`);
-      if (oldOrder?.manufacturer_name !== itarOrderForm.manufacturerName) changes.push(`Manufacturer: "${oldOrder?.manufacturer_name}" → "${itarOrderForm.manufacturerName}"`);
-      if ((oldOrder?.part_number ?? "") !== (itarOrderForm.partNumber ?? "")) changes.push(`Part#: "${oldOrder?.part_number ?? ""}" → "${itarOrderForm.partNumber ?? ""}"`)
-      if ((oldOrder?.qty ?? "") !== (itarOrderForm.qty ?? "")) changes.push(`QTY: "${oldOrder?.qty ?? ""}" → "${itarOrderForm.qty ?? ""}"`)
-      if ((oldOrder?.serial_number ?? "") !== (itarOrderForm.serialNumber ?? "")) changes.push(`S.N.: "${oldOrder?.serial_number ?? ""}" → "${itarOrderForm.serialNumber ?? ""}"`)
-      if ((oldOrder?.special_request ?? "") !== (itarOrderForm.specialRequest ?? "")) changes.push(`Special Request: "${oldOrder?.special_request ?? ""}" → "${itarOrderForm.specialRequest ?? ""}"`);
-      if (oldOrder?.location !== itarOrderForm.location) changes.push(`Location: "${oldOrder?.location}" → "${itarOrderForm.location}"`);
-      if (oldOrder?.itar_no !== itarOrderForm.itarNo) changes.push(`ITAR#: "${oldOrder?.itar_no}" → "${itarOrderForm.itarNo}"`);
-      if (normalizeDate(oldOrder?.ship_date) !== normalizeDate(itarOrderForm.shipDate)) changes.push(`Ship Date: "${normalizeDate(oldOrder?.ship_date)}" → "${normalizeDate(itarOrderForm.shipDate)}"`);  
-      if (oldOrder?.invoice_no !== itarOrderForm.invoiceNo) changes.push(`Invoice#: "${oldOrder?.invoice_no}" → "${itarOrderForm.invoiceNo}"`);
-      if (oldOrder?.order_status !== itarOrderForm.orderStatus) changes.push(`Status: "${oldOrder?.order_status}" → "${itarOrderForm.orderStatus}"`);
+      if (oldOrder?.est_no !== itarOrderForm.estNo)
+        changes.push(`Est#: "${oldOrder?.est_no}" → "${itarOrderForm.estNo}"`);
+      if (normalizeDate(oldOrder?.order_date) !== normalizeDate(itarOrderForm.orderDate))
+        changes.push(`Order Date: "${normalizeDate(oldOrder?.order_date)}" → "${normalizeDate(itarOrderForm.orderDate)}"`);
+      if (oldOrder?.product_type !== itarOrderForm.productType)
+        changes.push(`Product: "${oldOrder?.product_type}" → "${itarOrderForm.productType}"`);
+      if (oldOrder?.manufacturer_name !== itarOrderForm.manufacturerName)
+        changes.push(`Manufacturer: "${oldOrder?.manufacturer_name}" → "${itarOrderForm.manufacturerName}"`);
+      if ((oldOrder?.part_number ?? "") !== (itarOrderForm.partNumber ?? ""))
+        changes.push(`Part#: "${oldOrder?.part_number ?? ""}" → "${itarOrderForm.partNumber ?? ""}"`);
+      if ((oldOrder?.qty ?? "") !== (itarOrderForm.qty ?? ""))
+        changes.push(`QTY: "${oldOrder?.qty ?? ""}" → "${itarOrderForm.qty ?? ""}"`);
+      if ((oldOrder?.serial_number ?? "") !== (itarOrderForm.serialNumber ?? ""))
+        changes.push(`S.N.: "${oldOrder?.serial_number ?? ""}" → "${itarOrderForm.serialNumber ?? ""}"`);
+      if ((oldOrder?.special_request ?? "") !== (itarOrderForm.specialRequest ?? ""))
+        changes.push(`Special Request: "${oldOrder?.special_request ?? ""}" → "${itarOrderForm.specialRequest ?? ""}"`);
+      if (oldOrder?.location !== itarOrderForm.location)
+        changes.push(`Location: "${oldOrder?.location}" → "${itarOrderForm.location}"`);
+      if (oldOrder?.itar_no !== itarOrderForm.itarNo)
+        changes.push(`ITAR#: "${oldOrder?.itar_no}" → "${itarOrderForm.itarNo}"`);
+      if (normalizeDate(oldOrder?.ship_date) !== normalizeDate(itarOrderForm.shipDate))
+        changes.push(`Ship Date: "${normalizeDate(oldOrder?.ship_date)}" → "${normalizeDate(itarOrderForm.shipDate)}"`);
+      if (oldOrder?.invoice_no !== itarOrderForm.invoiceNo)
+        changes.push(`Invoice#: "${oldOrder?.invoice_no}" → "${itarOrderForm.invoiceNo}"`);
+      if (oldOrder?.order_status !== itarOrderForm.orderStatus)
+        changes.push(`Status: "${oldOrder?.order_status}" → "${itarOrderForm.orderStatus}"`);
       if ((oldOrder?.remark ?? oldOrder?.comment ?? '') !== (itarOrderForm.remark ?? ''))
-  changes.push(`Remark: "${oldOrder?.remark || oldOrder?.comment || ''}" → "${itarOrderForm.remark ?? ''}"`);
+        changes.push(`Remark: "${oldOrder?.remark || oldOrder?.comment || ''}" → "${itarOrderForm.remark ?? ''}"`);
 
-const existingRowIds = (oldOrder?.items || []).map(r => r.id);
-const currentRowIds = itarItemRows.map(r => r.id);
+      const existingRowIds = (oldOrder?.items || []).map(r => r.id);
+      const currentRowIds  = itarItemRows.map(r => r.id);
 
-// ✅ Naye rows — jo pehle nahi the
-const newlyAddedRows = itarItemRows.filter(r => !existingRowIds.includes(r.id));
+      const newlyAddedRows = itarItemRows.filter(r => !existingRowIds.includes(r.id));
+      const deletedRows    = (oldOrder?.items || []).filter(r => !currentRowIds.includes(r.id));
 
-// ✅ Delete hue rows — jo pehle the ab nahi hain
-const deletedRows = (oldOrder?.items || []).filter(r => !currentRowIds.includes(r.id));
+      if (newlyAddedRows.length > 0) {
+        const itemsSummary = newlyAddedRows.map((row, idx) =>
+          `Item ${idx + 1}: [Type: ${row.productType || "-"}, Manufacturer: "${row.manufacturerName || "-"}", Part#: "${row.partNumber || row.specialRequest || "-"}", QTY: ${row.qty || "-"}, S.N.: ${row.serialNumber || "-"}]`
+        ).join(" | ");
+        addActivityLog("Created", "ITAR Order Item",
+          `${newlyAddedRows.length} new inline item(s) added — ${itemsSummary}`);
+      }
 
-// ✅ Naye items ka log
-if (newlyAddedRows.length > 0) {
-  const itemsSummary = newlyAddedRows.map((row, idx) =>
-    `Item ${idx + 1}: [Type: ${row.productType || "-"}, Manufacturer: "${row.manufacturerName || "-"}", Part#: "${row.partNumber || row.specialRequest || "-"}", QTY: ${row.qty || "-"}, S.N.: ${row.serialNumber || "-"}]`
-  ).join(" | ");
+      if (deletedRows.length > 0) {
+        const deletedSummary = deletedRows.map((row, idx) =>
+          `Item ${idx + 1}: [Type: ${row.product_type || row.productType || "-"}, Manufacturer: "${row.manufacturer_name || row.manufacturerName || "-"}", Part#: "${row.part_number || row.partNumber || row.special_request || row.specialRequest || "-"}", QTY: ${row.qty || "-"}, S.N.: ${row.serial_number || row.serialNumber || "-"}]`
+        ).join(" | ");
+        addActivityLog("Deleted", "ITAR Order Item",
+          `${deletedRows.length} inline item(s) removed — ${deletedSummary}`);
+      }
 
-  addActivityLog(
-    "Created",
-    "ITAR Order Item",
-    `${newlyAddedRows.length} new inline item(s) added — ${itemsSummary}`
-  );
-}
+      if (changes.length > 0) {
+        addActivityLog("Updated", "ITAR Order",
+          `ITAR Order updated — ${changes.join(", ")}`);
+      }
 
-// ✅ Delete hue items ka log
-if (deletedRows.length > 0) {
- const deletedSummary = deletedRows.map((row, idx) =>
-  `Item ${idx + 1}: [Type: ${row.product_type || row.productType || "-"}, Manufacturer: "${row.manufacturer_name || row.manufacturerName || "-"}", Part#: "${row.part_number || row.partNumber || row.special_request || row.specialRequest || "-"}", QTY: ${row.qty || "-"}, S.N.: ${row.serial_number || row.serialNumber || "-"}]`
-).join(" | ");
-
-  addActivityLog(
-    "Deleted",
-    "ITAR Order Item",
-    `${deletedRows.length} inline item(s) removed — ${deletedSummary}`
-  );
-}
-
-// ✅ Order update ka log sirf real changes par
-if (changes.length > 0) {
-  addActivityLog("Updated", "ITAR Order", `ITAR Order updated — ${changes.join(", ")}`);
-}
-      
-      
       // ✅ Reset + fetch + redirect
       setItarOrderForm({
         orderDate: '', estNo: '', productType: '', manufacturerName: '',
         partNumber: '', specialRequest: '', qty: '', serialNumber: '',
-        location: '', itarNo: '', shipDate: '', invoiceNo: '', orderStatus: '', username: '' , remark: ''
+        location: '', itarNo: '', shipDate: '', invoiceNo: '',
+        orderStatus: '', username: '', remark: ''
       });
       setItarItemRows([]);
       fetchItarOrders();
       setEditingItarOrderId(null);
       alert("✅ ITAR Order updated successfully!");
-      setActiveOrdersPage('itar-list'); // ✅ sabse last
+      setActiveOrdersPage('itar-list');
 
+    // ============================================================
+    // CREATE MODE
+    // ============================================================
     } else {
-      await axios.post('https://employee-directory-application-xzt1.onrender.com/orders/itar', payload);
+      const res = await axios.post(
+        'https://employee-directory-application-xzt1.onrender.com/orders/itar',
+        payload
+      );
+
+      // ✅ POD files upload karo — POST ke baad (naya orderId milega)
+      const newOrderId = res.data.id;
+      await handleItarPodUpload(newOrderId);
+
       addActivityLog(
         "Created", "ITAR Order",
         `New ITAR Order created — Est#: ${itarOrderForm.estNo}, Order Date: ${itarOrderForm.orderDate}, Product: ${itarOrderForm.productType}, Manufacturer: ${itarOrderForm.manufacturerName}, ${isOther ? `Special Request: ${itarOrderForm.specialRequest}` : `Part#: ${itarOrderForm.partNumber}`}, QTY: ${itarOrderForm.qty}, S.N.: ${itarOrderForm.serialNumber}, Location: ${itarOrderForm.location}, ITAR#: ${itarOrderForm.itarNo}, Ship Date: ${itarOrderForm.shipDate}, Invoice#: ${itarOrderForm.invoiceNo}, Status: ${itarOrderForm.orderStatus}`
@@ -1477,12 +1540,13 @@ if (changes.length > 0) {
       setItarOrderForm({
         orderDate: '', estNo: '', productType: '', manufacturerName: '',
         partNumber: '', specialRequest: '', qty: '', serialNumber: '',
-        location: '', itarNo: '', shipDate: '', invoiceNo: '', orderStatus: '', username: '' ,remark: ''
+        location: '', itarNo: '', shipDate: '', invoiceNo: '',
+        orderStatus: '', username: '', remark: ''
       });
       setItarItemRows([]);
       fetchItarOrders();
       alert("✅ ITAR Order saved successfully!");
-      setActiveOrdersPage('itar-list'); // ✅ sabse last
+      setActiveOrdersPage('itar-list');
     }
 
   } catch (error) {
