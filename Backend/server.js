@@ -2785,7 +2785,8 @@ app.post('/tickets', memoryUpload.single('image'), async (req, res) => {
       <tr><td>Serial Number</td><td>${serialNumber || '—'}</td></tr>
       <tr><td>Quantity</td><td>${qty || '—'}</td></tr>
       <tr><td>Comment</td><td>${comment || '—'}</td></tr>
-      <tr><td>Image</td><td>${imageHtml}</td></tr>
+     
+      <tr><td>Image</td><td>${req.file ? `📎 ${req.file.originalname} (attached)` : '—'}</td></tr> 
     </table>
   </div>
 </body>
@@ -2793,16 +2794,26 @@ app.post('/tickets', memoryUpload.single('image'), async (req, res) => {
 
     // ✅ Step 3 — Resend se email bhejo
     try {
-      await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: email,
-        subject: `New ${orderLabel} Ticket — Order #${orderId} Line ${lineNo}`,
-        html: emailHtml,
-      });
-      console.log('✅ Ticket email sent to:', email);
-    } catch (emailErr) {
-      console.error('⚠️ Email failed but ticket saved:', emailErr.message);
-    }
+  const emailOptions = {
+    from: 'onboarding@resend.dev',
+    to: email,
+    subject: `New ${orderLabel} Ticket — Order #${orderId} Line ${lineNo}`,
+    html: emailHtml,
+  };
+
+  // ✅ Image attachment add karo agar file hai
+  if (req.file && req.file.buffer) {
+    emailOptions.attachments = [{
+      filename: req.file.originalname || 'ticket-image.jpg',
+      content: req.file.buffer,
+    }];
+  }
+
+  await resend.emails.send(emailOptions);
+  console.log('✅ Ticket email sent to:', email);
+} catch (emailErr) {
+  console.error('⚠️ Email failed but ticket saved:', emailErr.message);
+}
 
     res.json({ success: true, ticketId, message: 'Ticket created and email sent' });
 
