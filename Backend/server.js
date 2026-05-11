@@ -489,6 +489,38 @@ function createMissingTables() {
   });
 }
 
+
+// hardware_orders ke baad
+const extraColumns = [
+  { table: 'hardware_orders',       col: 'remark',          type: 'TEXT NULL' },
+  { table: 'hardware_orders',       col: 'special_request', type: 'TEXT NULL' },
+  { table: 'av_pos_orders',         col: 'remark',          type: 'TEXT NULL' },
+  { table: 'av_pos_orders',         col: 'special_request', type: 'TEXT NULL' },
+  { table: 'hardware_software_pos', col: 'remark',          type: 'TEXT NULL' },
+  { table: 'hardware_software_pos', col: 'special_request', type: 'TEXT NULL' },
+  { table: 'itar_orders',           col: 'remark',          type: 'TEXT NULL' },
+];
+
+extraColumns.forEach(({ table, col, type }) => {
+  pool.query(
+    `SELECT COUNT(*) as cnt FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() 
+     AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+    [table, col],
+    (err, result) => {
+      if (!err && result[0].cnt === 0) {
+        pool.query(
+          `ALTER TABLE ${table} ADD COLUMN ${col} ${type}`,
+          (addErr) => {
+            if (addErr) console.error(`⚠️ Could not add ${col} to ${table}:`, addErr.message);
+            else console.log(`✅ ${col} added to ${table}`);
+          }
+        );
+      }
+    }
+  );
+});
+
 app.post('/activity', (req, res) => {
   const { userId, userName, action, module, details } = req.body;
   console.log("📌 Activity received:", req.body);
