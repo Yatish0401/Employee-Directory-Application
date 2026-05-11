@@ -1221,19 +1221,28 @@ app.delete("/profiles/:id", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  const { identifier, password } = req.body;
+  const { identifier, password, captcha } = req.body;
 
+  // ✅ Sirf ek baar CAPTCHA check
   if (!captcha) return res.status(400).json({ message: "Captcha Missing" });
 
-   try {
-   const captchaResponse = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
-   params: { secret: process.env.RECAPTCHA_SECRET_KEY },
-   });
+  try {
+    const captchaRes = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify`,
+      null,
+      {
+        params: {
+          secret: process.env.RECAPTCHA_SECRET_KEY,
+          response: captcha
+        }
+      }
+    );
 
-    if (!captchaResponse.data.success && process.env.NODE_ENV === "production") {
-     return res.status(403).json({ message: "Captcha verification failed" });
+    if (!captchaRes.data.success) {
+      return res.status(400).json({ error: '⚠️ CAPTCHA verification failed' });
     }
 
+    // ✅ Login logic
     let sql;
     if (/^\d{10}$/.test(identifier)) {
       sql = "SELECT * FROM usersTest WHERE phone = ?";
@@ -1253,7 +1262,6 @@ app.post("/login", async (req, res) => {
 
       const userRole = (user.role || 'USER').toUpperCase();
 
-      // ✅ Roles table se permissions fetch karo
       pool.query(
         "SELECT permissions FROM roles WHERE role_name = ?",
         [userRole],
@@ -1281,8 +1289,9 @@ app.post("/login", async (req, res) => {
         }
       );
     });
+
   } catch (error) {
-    res.status(500).json({ message: "Captcha verification failed" });
+    res.status(500).json({ message: "Server error occurred" });
   }
 });
 
