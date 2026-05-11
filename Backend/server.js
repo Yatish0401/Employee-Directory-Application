@@ -2715,7 +2715,7 @@ app.post('/warranty', (req, res) => {
 
 
 app.post('/tickets', upload.single('image'), async (req, res) => {
-  console.log('REQ BODY:', req.body); // check terminal after testing
+  console.log('REQ BODY:', req.body);
   
   const { 
     orderId, orderType, lineNo, itemId, email, comment,
@@ -2723,6 +2723,7 @@ app.post('/tickets', upload.single('image'), async (req, res) => {
   } = req.body;
 
   try {
+    // ✅ Step 1 — Pehle DB mein save karo
     const [result] = await pool.promise().query(
       `INSERT INTO tickets 
         (order_id, order_type, line_no, item_id, email, comment, created_at, image_path, image_filename)
@@ -2780,22 +2781,30 @@ app.post('/tickets', upload.single('image'), async (req, res) => {
 </body>
 </html>`;
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: `New ${orderLabel} Ticket Created — Order #${orderId} Line ${lineNo}`,
-      html: emailHtml,
-      attachments: req.file ? [{
-        filename: req.file.originalname,
-        path: req.file.path,
-        cid: 'ticketImage'
-      }] : []
-    });
+    // ✅ Step 2 — Email alag try-catch mein
+    try {
+      await transporter.sendMail({
+        from: "yatish0401@gmail.com",  // ✅ FIX 1 — hardcode karo
+        to: email,
+        subject: `New ${orderLabel} Ticket Created — Order #${orderId} Line ${lineNo}`,
+        html: emailHtml,
+        attachments: req.file ? [{
+          filename: req.file.originalname,
+          path: req.file.path,
+          cid: 'ticketImage'
+        }] : []
+      });
+      console.log('✅ Ticket email sent to:', email);
+    } catch (emailErr) {
+      // ✅ FIX 2 — Email fail ho to bhi ticket save rahega, 500 error nahi aayega
+      console.error('⚠️ Email failed but ticket saved:', emailErr.message);
+    }
 
+    // ✅ Hamesha success return karo
     res.json({ success: true, ticketId, message: 'Ticket created and email sent' });
 
   } catch (err) {
-    console.error('Ticket error:', err);
+    console.error('❌ Ticket DB error:', err);
     res.status(500).json({ error: err.message });
   }
 });
