@@ -9,7 +9,8 @@ require("dotenv").config({ path: "./captcha.env" });
 const axios = require("axios");
 
 const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+ const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 const app = express();
 app.use(
@@ -1222,16 +1223,16 @@ app.delete("/profiles/:id", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { identifier, password } = req.body;
 
-  // if (!captcha) return res.status(400).json({ message: "Captcha Missing" });
+  if (!captcha) return res.status(400).json({ message: "Captcha Missing" });
 
-  // try {
-  //   const captchaResponse = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
-  //     params: { secret: process.env.RECAPTCHA_SECRET_KEY },
-  //   });
+   try {
+   const captchaResponse = await axios.post("https://www.google.com/recaptcha/api/siteverify", null, {
+   params: { secret: process.env.RECAPTCHA_SECRET_KEY },
+   });
 
-  //   if (!captchaResponse.data.success && process.env.NODE_ENV === "production") {
-  //     return res.status(403).json({ message: "Captcha verification failed" });
-  //   }
+    if (!captchaResponse.data.success && process.env.NODE_ENV === "production") {
+     return res.status(403).json({ message: "Captcha verification failed" });
+    }
 
     let sql;
     if (/^\d{10}$/.test(identifier)) {
@@ -1280,9 +1281,9 @@ app.post("/login", async (req, res) => {
         }
       );
     });
-  // } catch (error) {
-  //   res.status(500).json({ message: "Captcha verification failed" });
-  // }
+  } catch (error) {
+    res.status(500).json({ message: "Captcha verification failed" });
+  }
 });
 
 app.post("/generate-otp", (req, res) => {

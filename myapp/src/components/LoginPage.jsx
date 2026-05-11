@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-// import ReCAPTCHA from "react-google-recaptcha";
+ import ReCAPTCHA from "react-google-recaptcha";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -615,12 +615,12 @@ const styles = `
 
 function Login() {
   const [values, setValues] = useState({ identifier: "", password: "" });
-  // const [captchaValue, setCaptchaValue] = useState("");
+  const [captchaValue, setCaptchaValue] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // const handleCaptcha = (value) => setCaptchaValue(value);
+  const handleCaptcha = (value) => setCaptchaValue(value);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -665,16 +665,16 @@ function Login() {
     event.preventDefault();
     const formErrors = validateForm();
     setErrors(formErrors);
-    // if (!captchaValue) {
-    //   setErrors({ general: "Please complete CAPTCHA verification." });
-    //   return;
-    // }
+    if (!captchaValue) {
+      setErrors({ general: "Please complete CAPTCHA verification." });
+      return;
+    }
     if (Object.keys(formErrors).length === 0) {
       setLoading(true);
       try {
         const response = await axios.post("https://employee-directory-application-xzt1.onrender.com/login", {
           ...values,
-          // captcha: captchaValue,
+          captcha: captchaValue,
         });
         if (response.data.message === "Success") {
           const userData = response.data.user || response.data;
@@ -820,12 +820,12 @@ function Login() {
               </div>
             </div>
 
-            {/* <div className="cdn-captcha">
+             <div className="cdn-captcha">
               <ReCAPTCHA
                 sitekey="6LebAwgsAAAAAAy1a78kvOKk9qpWhVrT4POAfilH"
                 onChange={handleCaptcha}
               />
-            </div> */}
+            </div> 
 
             <div className="cdn-btn-row">
               <button type="submit" className="cdn-btn-primary" disabled={loading}>
