@@ -8,6 +8,9 @@ const bcrypt = require("bcrypt");
 require("dotenv").config({ path: "./captcha.env" });
 const axios = require("axios");
 
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 const app = express();
 app.use(
   cors({
@@ -2723,7 +2726,7 @@ app.post('/tickets', upload.single('image'), async (req, res) => {
   } = req.body;
 
   try {
-    // ✅ Step 1 — Pehle DB mein save karo
+    // ✅ Step 1 — DB mein save karo
     const [result] = await pool.promise().query(
       `INSERT INTO tickets 
         (order_id, order_type, line_no, item_id, email, comment, created_at, image_path, image_filename)
@@ -2740,7 +2743,6 @@ app.post('/tickets', upload.single('image'), async (req, res) => {
       ]
     );
     const ticketId = result.insertId;
-
     const orderLabel = (orderType || 'ORDER').toUpperCase();
 
     const emailHtml = `
@@ -2762,45 +2764,35 @@ app.post('/tickets', upload.single('image'), async (req, res) => {
 <body>
   <div class="container">
     <h2>New ${orderLabel} Ticket Created</h2>
-    <p class="subtitle">A new ticket has been successfully created with the following details:</p>
+    <p class="subtitle">Ticket details:</p>
     <table>
-      <tr><td>Email ID</td><td><a href="mailto:${email}">${email || '—'}</a></td></tr>
+      <tr><td>Email ID</td><td>${email || '—'}</td></tr>
       <tr><td>Product Type</td><td>${productType || '—'}</td></tr>
       <tr><td>Part Number</td><td>${partNumber || '—'}</td></tr>
-      <tr><td>Manufacturer Name</td><td>${manufacturerName || '—'}</td></tr>
+      <tr><td>Manufacturer</td><td>${manufacturerName || '—'}</td></tr>
       <tr><td>Description</td><td>${description || '—'}</td></tr>
       <tr><td>Serial Number</td><td>${serialNumber || '—'}</td></tr>
       <tr><td>Quantity</td><td>${qty || '—'}</td></tr>
       <tr><td>Comment</td><td>${comment || '—'}</td></tr>
-      <tr><td>Image</td><td>${req.file
-        ? `<img src="cid:ticketImage" style="max-width:220px;border-radius:6px;margin-top:4px;" />`
-        : '—'
-      }</td></tr>
     </table>
   </div>
 </body>
 </html>`;
 
-    // ✅ Step 2 — Email alag try-catch mein
+    // ✅ Step 2 — Resend se email bhejo
     try {
-      await transporter.sendMail({
-        from: "yatish0401@gmail.com",  // ✅ FIX 1 — hardcode karo
+      await resend.emails.send({
+        from: 'onboarding@resend.dev',
         to: email,
-        subject: `New ${orderLabel} Ticket Created — Order #${orderId} Line ${lineNo}`,
+        subject: `New ${orderLabel} Ticket — Order #${orderId} Line ${lineNo}`,
         html: emailHtml,
-        attachments: req.file ? [{
-          filename: req.file.originalname,
-          path: req.file.path,
-          cid: 'ticketImage'
-        }] : []
       });
       console.log('✅ Ticket email sent to:', email);
     } catch (emailErr) {
-      // ✅ FIX 2 — Email fail ho to bhi ticket save rahega, 500 error nahi aayega
       console.error('⚠️ Email failed but ticket saved:', emailErr.message);
     }
 
-    // ✅ Hamesha success return karo
+    // ✅ Step 3 — Success return karo
     res.json({ success: true, ticketId, message: 'Ticket created and email sent' });
 
   } catch (err) {
