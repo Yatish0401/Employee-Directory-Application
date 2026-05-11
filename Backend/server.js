@@ -1649,6 +1649,7 @@ app.post("/superadmin/delete-user", verifySuperadmin, (req, res) => {
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const memoryUpload = multer({ storage: multer.memoryStorage() });
 
 if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
 
@@ -2717,7 +2718,9 @@ app.post('/warranty', (req, res) => {
 });
 
 
-app.post('/tickets', upload.single('image'), async (req, res) => {
+
+// ✅ memoryUpload.single se change karo
+app.post('/tickets', memoryUpload.single('image'), async (req, res) => {
   console.log('REQ BODY:', req.body);
   
   const { 
@@ -2732,18 +2735,27 @@ app.post('/tickets', upload.single('image'), async (req, res) => {
         (order_id, order_type, line_no, item_id, email, comment, created_at, image_path, image_filename)
        VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?)`,
       [
-        orderId   || null,
-        orderType || null,
-        lineNo    || null,
-        itemId    || null,
-        email     || null,
-        comment   || null,
-        req.file?.filename || null,
-        req.file?.filename || null
+        orderId    || null,
+        orderType  || null,
+        lineNo     || null,
+        itemId     || null,
+        email      || null,
+        comment    || null,
+        req.file?.originalname || null,
+        req.file?.originalname || null
       ]
     );
     const ticketId = result.insertId;
     const orderLabel = (orderType || 'ORDER').toUpperCase();
+
+    // ✅ Step 2 — Image base64 directly from buffer
+    let imageHtml = '—';
+    if (req.file && req.file.buffer) {
+      const base64Image = req.file.buffer.toString('base64');
+      const mimeType = req.file.mimetype || 'image/jpeg';
+      imageHtml = `<img src="data:${mimeType};base64,${base64Image}" 
+                        style="max-width:220px;border-radius:6px;margin-top:4px;" />`;
+    }
 
     const emailHtml = `
 <!DOCTYPE html>
@@ -2758,7 +2770,6 @@ app.post('/tickets', upload.single('image'), async (req, res) => {
     table { width: 100%; border-collapse: collapse; border: 1px solid #e0e0e0; }
     td { padding: 13px 16px; border: 1px solid #e0e0e0; font-size: 14px; vertical-align: top; line-height: 1.5; }
     td:first-child { font-weight: 700; background: #f8f8f8; width: 160px; white-space: nowrap; color: #1e3a5f; }
-    a { color: #2d5a9e; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -2774,12 +2785,13 @@ app.post('/tickets', upload.single('image'), async (req, res) => {
       <tr><td>Serial Number</td><td>${serialNumber || '—'}</td></tr>
       <tr><td>Quantity</td><td>${qty || '—'}</td></tr>
       <tr><td>Comment</td><td>${comment || '—'}</td></tr>
+      <tr><td>Image</td><td>${imageHtml}</td></tr>
     </table>
   </div>
 </body>
 </html>`;
 
-    // ✅ Step 2 — Resend se email bhejo
+    // ✅ Step 3 — Resend se email bhejo
     try {
       await resend.emails.send({
         from: 'onboarding@resend.dev',
@@ -2792,7 +2804,6 @@ app.post('/tickets', upload.single('image'), async (req, res) => {
       console.error('⚠️ Email failed but ticket saved:', emailErr.message);
     }
 
-    // ✅ Step 3 — Success return karo
     res.json({ success: true, ticketId, message: 'Ticket created and email sent' });
 
   } catch (err) {
