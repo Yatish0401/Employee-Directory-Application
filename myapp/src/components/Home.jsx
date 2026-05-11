@@ -1685,159 +1685,248 @@ const fetchHardwareSoftwarePosOrders = useCallback(() => {
   });
 };
 
-   const handleSaveHardwareOrder = async () => {
+  const handleHardwarePodUpload = async (orderId) => {
+  if (!hardwareSelectedFiles || hardwareSelectedFiles.length === 0) return;
+ 
+  for (const fileObj of hardwareSelectedFiles) {
+    try {
+      const formData = new FormData();
+      formData.append('file', fileObj.file);
+ 
+      await axios.post(
+        `https://employee-directory-application-xzt1.onrender.com/orders/hardware/${orderId}/pod-files`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      console.log('✅ Hardware POD uploaded:', fileObj.file.name);
+    } catch (err) {
+      console.error('❌ Hardware POD upload failed:', err);
+    }
+  }
+ 
+  // ✅ Refresh pod files
+  try {
+    const podRes = await axios.get(
+      `https://employee-directory-application-xzt1.onrender.com/orders/hardware/${orderId}/pod-files`
+    );
+    setHardwarePodFiles(podRes.data);
+  } catch (e) {
+    console.error('Hardware POD refresh failed:', e);
+  }
+ 
+  // ✅ Reset
+  setHardwareSelectedFiles([]);
+  setHardwareFileInputs([{ id: Date.now() }]);
+};
+ 
+const handleHwSwPosPodUpload = async (orderId) => {
+  if (!hwSwPodFilesRef.current || hwSwPodFilesRef.current.length === 0) return;
+ 
+  const podFiles = hwSwPodFilesRef.current.filter(Boolean);
+ 
+  for (const file of podFiles) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('orderId', orderId);
+ 
+      await axios.post(
+        'https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/upload-pod',
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      console.log('✅ HW/SW POS POD uploaded:', file.name);
+    } catch (err) {
+      console.error('❌ HW/SW POS POD upload failed:', err);
+    }
+  }
+ 
+  // ✅ Reset
+  setHwSwPodFileInputs([{ id: 1, file: null }]);
+  hwSwPodFilesRef.current = [];
+};
+ 
+ 
+// ============================================================
+// STEP 2: Purana handleSaveHardwareOrder replace karo
+// ============================================================
+ 
+const handleSaveHardwareOrder = async () => {
   try {
     const isOther = hardwareOrderForm.manufacturerName?.toLowerCase() === 'other';
     const payload = {
-  orderDate: hardwareOrderForm.orderDate || null,
-  estNo: hardwareOrderForm.estNo || null,
-  assignedUsername: editingHardwareOrderId
-  ? (hardwareOrderForm.selectedUser
-      ? (data.find(p => p.id === parseInt(hardwareOrderForm.selectedUser))?.username || null)
-      : (hardwareOrders.find(o => o.id === editingHardwareOrderId)?.assigned_username || null))
-  : (hardwareOrderForm.selectedUser
-      ? (data.find(p => p.id === parseInt(hardwareOrderForm.selectedUser))?.username || null)
-      : (user?.username || user?.name || null)),
-  productType: hardwareOrderForm.productType || null,
-  manufacturerName: hardwareOrderForm.manufacturerName || null,
-  partNumber: isOther ? null : (hardwareOrderForm.partNumber || null),
-  specialRequest: isOther ? (hardwareOrderForm.specialRequest || null) : null,
-  qty: hardwareOrderForm.productType === 'services' ? null : (hardwareOrderForm.qty || null),
-  serialNumber: isOther ? null : (hardwareOrderForm.serialNumber || null),
+      orderDate: hardwareOrderForm.orderDate || null,
+      estNo: hardwareOrderForm.estNo || null,
+      assignedUsername: editingHardwareOrderId
+        ? (hardwareOrderForm.selectedUser
+            ? (data.find(p => p.id === parseInt(hardwareOrderForm.selectedUser))?.username || null)
+            : (hardwareOrders.find(o => o.id === editingHardwareOrderId)?.assigned_username || null))
+        : (hardwareOrderForm.selectedUser
+            ? (data.find(p => p.id === parseInt(hardwareOrderForm.selectedUser))?.username || null)
+            : (user?.username || user?.name || null)),
+      productType: hardwareOrderForm.productType || null,
+      manufacturerName: hardwareOrderForm.manufacturerName || null,
+      partNumber: isOther ? null : (hardwareOrderForm.partNumber || null),
+      specialRequest: isOther ? (hardwareOrderForm.specialRequest || null) : null,
+      qty: hardwareOrderForm.productType === 'services' ? null : (hardwareOrderForm.qty || null),
+      serialNumber: isOther ? null : (hardwareOrderForm.serialNumber || null),
       location: hardwareOrderForm.location || null,
       hardwareNo: hardwareOrderForm.hardwareNo || null,
       shipDate: hardwareOrderForm.shipDate || null,
       invoiceNo: hardwareOrderForm.invoiceNo || null,
       orderStatus: hardwareOrderForm.orderStatus || null,
       createdByUserId: user?.id || null,
-      remark: hardwareOrderForm.remark || null, 
-     items: hardwareItemRows.map(row => {
-  const rowIsOther = row.manufacturerName?.toLowerCase() === 'other';
-  const rowIsServices = row.productType?.toLowerCase() === 'services';
-  return {
-    ...row,
-    partNumber:     rowIsOther    ? null : (row.partNumber || null),
-    specialRequest: rowIsOther    ? (row.specialRequest || null) : null,
-    qty:            rowIsServices ? null : (row.qty || null),
-    serialNumber:   rowIsOther    ? null : (row.serialNumber || null),
-  };
-})
+      remark: hardwareOrderForm.remark || null,
+      items: hardwareItemRows.map(row => {
+        const rowIsOther    = row.manufacturerName?.toLowerCase() === 'other';
+        const rowIsServices = row.productType?.toLowerCase() === 'services';
+        return {
+          ...row,
+          partNumber:     rowIsOther    ? null : (row.partNumber || null),
+          specialRequest: rowIsOther    ? (row.specialRequest || null) : null,
+          qty:            rowIsServices ? null : (row.qty || null),
+          serialNumber:   rowIsOther    ? null : (row.serialNumber || null),
+        };
+      })
     };
-
+ 
+    // ── EDIT MODE ──
     if (editingHardwareOrderId) {
       const oldOrder = hardwareOrders.find(o => o.id === editingHardwareOrderId);
       console.log("HW oldOrder remark:", oldOrder?.remark);
-console.log("HW oldOrder comment:", oldOrder?.comment);
+      console.log("HW oldOrder comment:", oldOrder?.comment);
       console.log("oldOrder items sample:", oldOrder?.items?.[0]);
-      await axios.put(`https://employee-directory-application-xzt1.onrender.com/orders/hardware/${editingHardwareOrderId}`, payload);
-      
+ 
+      await axios.put(
+        `https://employee-directory-application-xzt1.onrender.com/orders/hardware/${editingHardwareOrderId}`,
+        payload
+      );
+ 
+      // ✅ POD upload karo — PUT ke baad
+      await handleHardwarePodUpload(editingHardwareOrderId);
+ 
       const changes = [];
-      if (oldOrder?.est_no !== hardwareOrderForm.estNo) changes.push(`Est#: "${oldOrder?.est_no}" → "${hardwareOrderForm.estNo}"`);
-      if (normalizeDate(oldOrder?.order_date) !== normalizeDate(hardwareOrderForm.orderDate)) changes.push(`Order Date: "${normalizeDate(oldOrder?.order_date)}" → "${normalizeDate(hardwareOrderForm.orderDate)}"`);
-      if (oldOrder?.product_type !== hardwareOrderForm.productType) changes.push(`Product: "${oldOrder?.product_type}" → "${hardwareOrderForm.productType}"`);
-      if (oldOrder?.manufacturer_name !== hardwareOrderForm.manufacturerName) changes.push(`Manufacturer: "${oldOrder?.manufacturer_name}" → "${hardwareOrderForm.manufacturerName}"`);
-      if (oldOrder?.part_number !== hardwareOrderForm.partNumber) changes.push(`Part#: "${oldOrder?.part_number}" → "${hardwareOrderForm.partNumber}"`);
-
-      // ✅ FIX 1: Normalize qty to string for safe comparison
-      if (String(oldOrder?.qty ?? '') !== String(hardwareOrderForm.qty ?? '')) changes.push(`QTY: "${oldOrder?.qty}" → "${hardwareOrderForm.qty}"`);
-
-      if (oldOrder?.serial_number !== hardwareOrderForm.serialNumber) changes.push(`S.N.: "${oldOrder?.serial_number}" → "${hardwareOrderForm.serialNumber}"`);
-      if (oldOrder?.location !== hardwareOrderForm.location) changes.push(`Location: "${oldOrder?.location}" → "${hardwareOrderForm.location}"`);
-      if (oldOrder?.hardware_no !== hardwareOrderForm.hardwareNo) changes.push(`Hardware#: "${oldOrder?.hardware_no}" → "${hardwareOrderForm.hardwareNo}"`);
-      if (normalizeDate(oldOrder?.ship_date) !== normalizeDate(hardwareOrderForm.shipDate)) changes.push(`Ship Date: "${normalizeDate(oldOrder?.ship_date)}" → "${normalizeDate(hardwareOrderForm.shipDate)}"`);
-      if (oldOrder?.invoice_no !== hardwareOrderForm.invoiceNo) changes.push(`Invoice#: "${oldOrder?.invoice_no}" → "${hardwareOrderForm.invoiceNo}"`);
-      if (oldOrder?.order_status !== hardwareOrderForm.orderStatus) changes.push(`Status: "${oldOrder?.order_status}" → "${hardwareOrderForm.orderStatus}"`);
+      if (oldOrder?.est_no !== hardwareOrderForm.estNo)
+        changes.push(`Est#: "${oldOrder?.est_no}" → "${hardwareOrderForm.estNo}"`);
+      if (normalizeDate(oldOrder?.order_date) !== normalizeDate(hardwareOrderForm.orderDate))
+        changes.push(`Order Date: "${normalizeDate(oldOrder?.order_date)}" → "${normalizeDate(hardwareOrderForm.orderDate)}"`);
+      if (oldOrder?.product_type !== hardwareOrderForm.productType)
+        changes.push(`Product: "${oldOrder?.product_type}" → "${hardwareOrderForm.productType}"`);
+      if (oldOrder?.manufacturer_name !== hardwareOrderForm.manufacturerName)
+        changes.push(`Manufacturer: "${oldOrder?.manufacturer_name}" → "${hardwareOrderForm.manufacturerName}"`);
+      if (oldOrder?.part_number !== hardwareOrderForm.partNumber)
+        changes.push(`Part#: "${oldOrder?.part_number}" → "${hardwareOrderForm.partNumber}"`);
+      if (String(oldOrder?.qty ?? '') !== String(hardwareOrderForm.qty ?? ''))
+        changes.push(`QTY: "${oldOrder?.qty}" → "${hardwareOrderForm.qty}"`);
+      if (oldOrder?.serial_number !== hardwareOrderForm.serialNumber)
+        changes.push(`S.N.: "${oldOrder?.serial_number}" → "${hardwareOrderForm.serialNumber}"`);
+      if (oldOrder?.location !== hardwareOrderForm.location)
+        changes.push(`Location: "${oldOrder?.location}" → "${hardwareOrderForm.location}"`);
+      if (oldOrder?.hardware_no !== hardwareOrderForm.hardwareNo)
+        changes.push(`Hardware#: "${oldOrder?.hardware_no}" → "${hardwareOrderForm.hardwareNo}"`);
+      if (normalizeDate(oldOrder?.ship_date) !== normalizeDate(hardwareOrderForm.shipDate))
+        changes.push(`Ship Date: "${normalizeDate(oldOrder?.ship_date)}" → "${normalizeDate(hardwareOrderForm.shipDate)}"`);
+      if (oldOrder?.invoice_no !== hardwareOrderForm.invoiceNo)
+        changes.push(`Invoice#: "${oldOrder?.invoice_no}" → "${hardwareOrderForm.invoiceNo}"`);
+      if (oldOrder?.order_status !== hardwareOrderForm.orderStatus)
+        changes.push(`Status: "${oldOrder?.order_status}" → "${hardwareOrderForm.orderStatus}"`);
       if ((oldOrder?.remark ?? oldOrder?.comment ?? '') !== (hardwareOrderForm.remark ?? ''))
-  changes.push(`Remark: "${oldOrder?.remark || oldOrder?.comment || ''}" → "${hardwareOrderForm.remark ?? ''}"`);
-
-      const existingHwRowIds = (oldOrder?.items || []).map(r => r.id);
-      const currentHwRowIds = hardwareItemRows.map(r => r.id);
-
-      const newlyAddedHwRows = hardwareItemRows.filter(r => !existingHwRowIds.includes(r.id));
-      const deletedHwRows = (oldOrder?.items || []).filter(r => !currentHwRowIds.includes(r.id));
-
-      // ✅ FIX 2: Detect updated inline rows (same id, but fields changed)
-      const updatedHwRows = hardwareItemRows.filter(currentRow => {
-  const oldRow = (oldOrder?.items || []).find(r => r.id === currentRow.id);
-  if (!oldRow) return false;
-
-  return (
-    String(oldRow.productType ?? '') !== String(currentRow.productType ?? '') ||
-    String(oldRow.manufacturerName ?? '') !== String(currentRow.manufacturerName ?? '') ||
-    String(oldRow.partNumber ?? '') !== String(currentRow.partNumber ?? '') ||
-    String(oldRow.qty ?? '') !== String(currentRow.qty ?? '') ||
-    String(oldRow.serialNumber ?? '') !== String(currentRow.serialNumber ?? '')
-  );
-});
-
+        changes.push(`Remark: "${oldOrder?.remark || oldOrder?.comment || ''}" → "${hardwareOrderForm.remark ?? ''}"`);
+ 
+      const existingHwRowIds  = (oldOrder?.items || []).map(r => r.id);
+      const currentHwRowIds   = hardwareItemRows.map(r => r.id);
+      const newlyAddedHwRows  = hardwareItemRows.filter(r => !existingHwRowIds.includes(r.id));
+      const deletedHwRows     = (oldOrder?.items || []).filter(r => !currentHwRowIds.includes(r.id));
+      const updatedHwRows     = hardwareItemRows.filter(currentRow => {
+        const oldRow = (oldOrder?.items || []).find(r => r.id === currentRow.id);
+        if (!oldRow) return false;
+        return (
+          String(oldRow.productType      ?? '') !== String(currentRow.productType      ?? '') ||
+          String(oldRow.manufacturerName ?? '') !== String(currentRow.manufacturerName ?? '') ||
+          String(oldRow.partNumber       ?? '') !== String(currentRow.partNumber       ?? '') ||
+          String(oldRow.qty              ?? '') !== String(currentRow.qty              ?? '') ||
+          String(oldRow.serialNumber     ?? '') !== String(currentRow.serialNumber     ?? '')
+        );
+      });
+ 
       if (newlyAddedHwRows.length > 0) {
         const summary = newlyAddedHwRows.map((row, idx) =>
           `Item ${idx + 1}: [Type: ${row.productType || "-"}, Manufacturer: "${row.manufacturerName || "-"}", Part#: "${row.partNumber || "-"}", QTY: ${row.qty || "-"}, S.N.: ${row.serialNumber || "-"}]`
         ).join(" | ");
-        addActivityLog("Created", "Hardware Order Item", `${newlyAddedHwRows.length} new inline item(s) added — ${summary}`);
+        addActivityLog("Created", "Hardware Order Item",
+          `${newlyAddedHwRows.length} new inline item(s) added — ${summary}`);
       }
-
+ 
       if (deletedHwRows.length > 0) {
         const deletedSummary = deletedHwRows.map((row, idx) =>
           `Item ${idx + 1}: [Type: ${row.product_type || "-"}, Manufacturer: "${row.manufacturer_name || "-"}", Part#: "${row.part_number || "-"}", QTY: ${row.qty || "-"}, S.N.: ${row.serial_number || "-"}]`
         ).join(" | ");
-        addActivityLog("Deleted", "Hardware Order Item", `${deletedHwRows.length} inline item(s) removed — ${deletedSummary}`);
+        addActivityLog("Deleted", "Hardware Order Item",
+          `${deletedHwRows.length} inline item(s) removed — ${deletedSummary}`);
       }
-
-      // ✅ FIX 2 LOG: Log updated inline rows with before → after values
+ 
       if (updatedHwRows.length > 0) {
-  const updatedSummary = updatedHwRows.map((currentRow, idx) => {
-    const oldRow = (oldOrder?.items || []).find(r => r.id === currentRow.id);
-    const fieldChanges = [];
-
-    if (String(oldRow.productType ?? '') !== String(currentRow.productType ?? ''))
-      fieldChanges.push(`Type: "${oldRow.productType}" → "${currentRow.productType}"`);
-
-    if (String(oldRow.manufacturerName ?? '') !== String(currentRow.manufacturerName ?? ''))
-      fieldChanges.push(`Manufacturer: "${oldRow.manufacturerName}" → "${currentRow.manufacturerName}"`);
-
-    if (String(oldRow.partNumber ?? '') !== String(currentRow.partNumber ?? ''))
-      fieldChanges.push(`Part#: "${oldRow.partNumber}" → "${currentRow.partNumber}"`);
-
-    if (String(oldRow.qty ?? '') !== String(currentRow.qty ?? ''))
-      fieldChanges.push(`QTY: "${oldRow.qty}" → "${currentRow.qty}"`);
-
-    if (String(oldRow.serialNumber ?? '') !== String(currentRow.serialNumber ?? ''))
-      fieldChanges.push(`S.N.: "${oldRow.serialNumber}" → "${currentRow.serialNumber}"`);
-
-    return `Item ${idx + 1}: [${fieldChanges.join(", ")}]`;
-  }).join(" | ");
-
-  addActivityLog("Updated", "Hardware Order Item", `${updatedHwRows.length} inline item(s) modified — ${updatedSummary}`);
-}
-
-      if (changes.length > 0) {
-        addActivityLog("Updated", "Hardware Order", `Hardware Order updated — ${changes.join(", ")}`);
+        const updatedSummary = updatedHwRows.map((currentRow, idx) => {
+          const oldRow = (oldOrder?.items || []).find(r => r.id === currentRow.id);
+          const fieldChanges = [];
+          if (String(oldRow.productType      ?? '') !== String(currentRow.productType      ?? ''))
+            fieldChanges.push(`Type: "${oldRow.productType}" → "${currentRow.productType}"`);
+          if (String(oldRow.manufacturerName ?? '') !== String(currentRow.manufacturerName ?? ''))
+            fieldChanges.push(`Manufacturer: "${oldRow.manufacturerName}" → "${currentRow.manufacturerName}"`);
+          if (String(oldRow.partNumber       ?? '') !== String(currentRow.partNumber       ?? ''))
+            fieldChanges.push(`Part#: "${oldRow.partNumber}" → "${currentRow.partNumber}"`);
+          if (String(oldRow.qty              ?? '') !== String(currentRow.qty              ?? ''))
+            fieldChanges.push(`QTY: "${oldRow.qty}" → "${currentRow.qty}"`);
+          if (String(oldRow.serialNumber     ?? '') !== String(currentRow.serialNumber     ?? ''))
+            fieldChanges.push(`S.N.: "${oldRow.serialNumber}" → "${currentRow.serialNumber}"`);
+          return `Item ${idx + 1}: [${fieldChanges.join(", ")}]`;
+        }).join(" | ");
+        addActivityLog("Updated", "Hardware Order Item",
+          `${updatedHwRows.length} inline item(s) modified — ${updatedSummary}`);
       }
-
+ 
+      if (changes.length > 0) {
+        addActivityLog("Updated", "Hardware Order",
+          `Hardware Order updated — ${changes.join(", ")}`);
+      }
+ 
       alert("✅ Hardware Order updated successfully!");
       setEditingHardwareOrderId(null);
       setActiveOrdersPage('hardware-orders-list');
+ 
+    // ── CREATE MODE ──
     } else {
-      await axios.post('https://employee-directory-application-xzt1.onrender.com/orders/hardware', payload);
-      addActivityLog("Created", "Hardware Order", `New Hardware Order created — Est#: ${hardwareOrderForm.estNo}, Order Date: ${hardwareOrderForm.orderDate}, Product: ${hardwareOrderForm.productType}, Manufacturer: ${hardwareOrderForm.manufacturerName}, Part#: ${hardwareOrderForm.partNumber}, QTY: ${hardwareOrderForm.qty}, S.N.: ${hardwareOrderForm.serialNumber}, Location: ${hardwareOrderForm.location}, Hardware#: ${hardwareOrderForm.hardwareNo}, Ship Date: ${hardwareOrderForm.shipDate}, Invoice#: ${hardwareOrderForm.invoiceNo}, Status: ${hardwareOrderForm.orderStatus}`);
+      const res = await axios.post(
+        'https://employee-directory-application-xzt1.onrender.com/orders/hardware',
+        payload
+      );
+ 
+      // ✅ POD upload karo — POST ke baad
+      await handleHardwarePodUpload(res.data.id);
+ 
+      addActivityLog("Created", "Hardware Order",
+        `New Hardware Order created — Est#: ${hardwareOrderForm.estNo}, Order Date: ${hardwareOrderForm.orderDate}, Product: ${hardwareOrderForm.productType}, Manufacturer: ${hardwareOrderForm.manufacturerName}, Part#: ${hardwareOrderForm.partNumber}, QTY: ${hardwareOrderForm.qty}, S.N.: ${hardwareOrderForm.serialNumber}, Location: ${hardwareOrderForm.location}, Hardware#: ${hardwareOrderForm.hardwareNo}, Ship Date: ${hardwareOrderForm.shipDate}, Invoice#: ${hardwareOrderForm.invoiceNo}, Status: ${hardwareOrderForm.orderStatus}`
+      );
+ 
       alert("✅ Hardware Order saved successfully!");
       setActiveOrdersPage('hardware-orders-list');
     }
-
+ 
     setHardwareOrderForm({
       orderDate: '', estNo: '', selectedUser: '', productType: '',
       manufacturerName: '', partNumber: '', qty: '', serialNumber: '',
-      location: '', hardwareNo: '', shipDate: '', invoiceNo: '', orderStatus: '' , remark: '' 
+      location: '', hardwareNo: '', shipDate: '', invoiceNo: '',
+      orderStatus: '', remark: ''
     });
-
+    setHardwareItemRows([]);
     fetchHardwareOrders();
-
+ 
   } catch (error) {
     console.error('❌ Error saving hardware order:', error);
     alert(`❌ Failed to save: ${error.response?.data?.error || error.message}`);
   }
 };
+ 
 
   const handleResetHardwareForm = () => {
   setEditingHardwareOrderId(null);
@@ -2147,200 +2236,174 @@ const handleResetAvPosForm = () => {
    // ===================== HW/SW POS ORDER HANDLERS =====================
  const handleSaveHardwareSoftwarePosOrder = async () => {
   try {
-    const selectedProfile = data.find(p => p.id === parseInt(hardwareSoftwarePosOrderForm.userId));
-    
     const isOther = hardwareSoftwarePosOrderForm.manufacturerName?.toLowerCase() === 'other';
-
-const payload = {
-  orderDate: hardwareSoftwarePosOrderForm.orderDate || null,
-  estNo: hardwareSoftwarePosOrderForm.estNo || null,
-  productType: hardwareSoftwarePosOrderForm.productType || null,
- assignedUsername: editingHardwareSoftwarePosOrderId
-  // Edit mode: user ne koi select kiya to naya, warna purana rakho
-  ? (hardwareSoftwarePosOrderForm.userId
-      ? (data.find(p => p.id === parseInt(hardwareSoftwarePosOrderForm.userId))?.username || null)
-      : (hardwareSoftwarePosOrders.find(o => o.id === editingHardwareSoftwarePosOrderId)?.assigned_username || null))
-  // Create mode: user ne select kiya to wo, warna logged-in user
-  : (hardwareSoftwarePosOrderForm.userId
-      ? (data.find(p => p.id === parseInt(hardwareSoftwarePosOrderForm.userId))?.username || null)
-      : (user?.username || user?.name || null)),
-  manufacturerName: hardwareSoftwarePosOrderForm.manufacturerName || null,
-  partNumber: isOther ? null : (hardwareSoftwarePosOrderForm.partNumber || null),
-  specialRequest: isOther ? (hardwareSoftwarePosOrderForm.specialRequest || null) : null,
-  qty: hardwareSoftwarePosOrderForm.productType === 'services' ? null : (hardwareSoftwarePosOrderForm.qty || null),
-  serialNumber: isOther ? null : (hardwareSoftwarePosOrderForm.serialNumber || null),
-  location: hardwareSoftwarePosOrderForm.location || null,
-  poNo: hardwareSoftwarePosOrderForm.poNo || null,
-  shipDate: hardwareSoftwarePosOrderForm.shipDate || null,
-  invoiceNo: hardwareSoftwarePosOrderForm.invoiceNo || null,
-  orderStatus: hardwareSoftwarePosOrderForm.orderStatus || null,
-  remark: hardwareSoftwarePosOrderForm.remark || null,
-  createdByUserId: user?.id || null,
-  items: hwSwPosItemRows.map(row => {
-    const rowIsOther = row.manufacturerName?.toLowerCase() === 'other';
-    const rowIsServices = row.productType?.toLowerCase() === 'services';
-    return {
-      ...row,
-      partNumber:     rowIsOther    ? null : (row.partNumber || null),
-      specialRequest: rowIsOther    ? (row.specialRequest || null) : null,
-      qty:            rowIsServices ? null : (row.qty || null),
-      serialNumber:   rowIsOther    ? null : (row.serialNumber || null),
+ 
+    const payload = {
+      orderDate:    hardwareSoftwarePosOrderForm.orderDate    || null,
+      estNo:        hardwareSoftwarePosOrderForm.estNo        || null,
+      productType:  hardwareSoftwarePosOrderForm.productType  || null,
+      assignedUsername: editingHardwareSoftwarePosOrderId
+        ? (hardwareSoftwarePosOrderForm.userId
+            ? (data.find(p => p.id === parseInt(hardwareSoftwarePosOrderForm.userId))?.username || null)
+            : (hardwareSoftwarePosOrders.find(o => o.id === editingHardwareSoftwarePosOrderId)?.assigned_username || null))
+        : (hardwareSoftwarePosOrderForm.userId
+            ? (data.find(p => p.id === parseInt(hardwareSoftwarePosOrderForm.userId))?.username || null)
+            : (user?.username || user?.name || null)),
+      manufacturerName: hardwareSoftwarePosOrderForm.manufacturerName || null,
+      partNumber:    isOther ? null : (hardwareSoftwarePosOrderForm.partNumber    || null),
+      specialRequest: isOther ? (hardwareSoftwarePosOrderForm.specialRequest || null) : null,
+      qty:           hardwareSoftwarePosOrderForm.productType === 'services' ? null : (hardwareSoftwarePosOrderForm.qty || null),
+      serialNumber:  isOther ? null : (hardwareSoftwarePosOrderForm.serialNumber  || null),
+      location:      hardwareSoftwarePosOrderForm.location    || null,
+      poNo:          hardwareSoftwarePosOrderForm.poNo        || null,
+      shipDate:      hardwareSoftwarePosOrderForm.shipDate    || null,
+      invoiceNo:     hardwareSoftwarePosOrderForm.invoiceNo   || null,
+      orderStatus:   hardwareSoftwarePosOrderForm.orderStatus || null,
+      remark:        hardwareSoftwarePosOrderForm.remark      || null,
+      createdByUserId: user?.id || null,
+      items: hwSwPosItemRows.map(row => {
+        const rowIsOther    = row.manufacturerName?.toLowerCase() === 'other';
+        const rowIsServices = row.productType?.toLowerCase() === 'services';
+        return {
+          ...row,
+          partNumber:     rowIsOther    ? null : (row.partNumber    || null),
+          specialRequest: rowIsOther    ? (row.specialRequest || null) : null,
+          qty:            rowIsServices ? null : (row.qty            || null),
+          serialNumber:   rowIsOther    ? null : (row.serialNumber   || null),
+        };
+      })
     };
-  })
-};
-
+ 
+    // ── EDIT MODE ──
     if (editingHardwareSoftwarePosOrderId) {
       const oldOrder = hardwareSoftwarePosOrders.find(o => o.id === editingHardwareSoftwarePosOrderId);
-      await axios.put(`https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/${editingHardwareSoftwarePosOrderId}`, payload);
-
+ 
+      await axios.put(
+        `https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/${editingHardwareSoftwarePosOrderId}`,
+        payload
+      );
+ 
+      // ✅ POD upload karo — PUT ke baad
+      await handleHwSwPosPodUpload(editingHardwareSoftwarePosOrderId);
+ 
       const changes = [];
-
-      // ✅ FIX — consistent date normalization
-      const normalizeDate = (val) => {
-        if (!val) return '';
-        if (typeof val === 'string') return val.substring(0, 10);
-        return new Date(val).toLocaleDateString('en-CA');
-      };
-
       if (oldOrder?.est_no !== hardwareSoftwarePosOrderForm.estNo)
         changes.push(`Est#: "${oldOrder?.est_no}" → "${hardwareSoftwarePosOrderForm.estNo}"`);
-
-      const oldOrderDate = normalizeDate(oldOrder?.order_date);
-      const newOrderDate = hardwareSoftwarePosOrderForm.orderDate || '';
-      if (oldOrderDate !== newOrderDate)
-        changes.push(`Order Date: "${oldOrderDate}" → "${newOrderDate}"`);
-
+      if (normalizeDate(oldOrder?.order_date) !== (hardwareSoftwarePosOrderForm.orderDate || ''))
+        changes.push(`Order Date: "${normalizeDate(oldOrder?.order_date)}" → "${hardwareSoftwarePosOrderForm.orderDate || ''}"`);
       if (oldOrder?.product_type !== hardwareSoftwarePosOrderForm.productType)
         changes.push(`Product: "${oldOrder?.product_type}" → "${hardwareSoftwarePosOrderForm.productType}"`);
       if (oldOrder?.manufacturer_name !== hardwareSoftwarePosOrderForm.manufacturerName)
         changes.push(`Manufacturer: "${oldOrder?.manufacturer_name}" → "${hardwareSoftwarePosOrderForm.manufacturerName}"`);
       if (oldOrder?.part_number !== hardwareSoftwarePosOrderForm.partNumber)
         changes.push(`Part#: "${oldOrder?.part_number}" → "${hardwareSoftwarePosOrderForm.partNumber}"`);
-
-      // ✅ FIX — qty string comparison
       if (String(oldOrder?.qty ?? '') !== String(hardwareSoftwarePosOrderForm.qty ?? ''))
         changes.push(`QTY: "${oldOrder?.qty}" → "${hardwareSoftwarePosOrderForm.qty}"`);
-
       if (oldOrder?.serial_number !== hardwareSoftwarePosOrderForm.serialNumber)
         changes.push(`S.N.: "${oldOrder?.serial_number}" → "${hardwareSoftwarePosOrderForm.serialNumber}"`);
       if (oldOrder?.location !== hardwareSoftwarePosOrderForm.location)
         changes.push(`Location: "${oldOrder?.location}" → "${hardwareSoftwarePosOrderForm.location}"`);
       if (oldOrder?.po_no !== hardwareSoftwarePosOrderForm.poNo)
         changes.push(`PO#: "${oldOrder?.po_no}" → "${hardwareSoftwarePosOrderForm.poNo}"`);
-
-      const oldShipDate = normalizeDate(oldOrder?.ship_date);
-      const newShipDate = hardwareSoftwarePosOrderForm.shipDate || '';
-      if (oldShipDate !== newShipDate)
-        changes.push(`Ship Date: "${oldShipDate}" → "${newShipDate}"`);
-
+      if (normalizeDate(oldOrder?.ship_date) !== (hardwareSoftwarePosOrderForm.shipDate || ''))
+        changes.push(`Ship Date: "${normalizeDate(oldOrder?.ship_date)}" → "${hardwareSoftwarePosOrderForm.shipDate || ''}"`);
       if (oldOrder?.invoice_no !== hardwareSoftwarePosOrderForm.invoiceNo)
         changes.push(`Invoice#: "${oldOrder?.invoice_no}" → "${hardwareSoftwarePosOrderForm.invoiceNo}"`);
       if (oldOrder?.order_status !== hardwareSoftwarePosOrderForm.orderStatus)
         changes.push(`Status: "${oldOrder?.order_status}" → "${hardwareSoftwarePosOrderForm.orderStatus}"`);
       if ((oldOrder?.remark ?? '') !== (hardwareSoftwarePosOrderForm.remark ?? ''))
-  changes.push(`Remark: "${oldOrder?.remark ?? ''}" → "${hardwareSoftwarePosOrderForm.remark ?? ''}"`);
-
-      // ✅ Inline items tracking
+        changes.push(`Remark: "${oldOrder?.remark ?? ''}" → "${hardwareSoftwarePosOrderForm.remark ?? ''}"`);
+ 
       const existingHwSwRowIds = (oldOrder?.items || []).map(r => r.id);
-      const currentHwSwRowIds = hwSwPosItemRows.map(r => r.id);
-
+      const currentHwSwRowIds  = hwSwPosItemRows.map(r => r.id);
       const newlyAddedHwSwRows = hwSwPosItemRows.filter(r => !existingHwSwRowIds.includes(r.id));
-      const deletedHwSwRows = (oldOrder?.items || []).filter(r => !currentHwSwRowIds.includes(r.id));
-
-      // ✅ FIX — modified rows detect karo
-      const modifiedHwSwRows = hwSwPosItemRows.filter(r => {
+      const deletedHwSwRows    = (oldOrder?.items || []).filter(r => !currentHwSwRowIds.includes(r.id));
+      const modifiedHwSwRows   = hwSwPosItemRows.filter(r => {
         if (!existingHwSwRowIds.includes(r.id)) return false;
         const oldRow = (oldOrder?.items || []).find(old => old.id === r.id);
         if (!oldRow) return false;
         return (
-          (r.productType || r.product_type || '') !== (oldRow.product_type || oldRow.productType || '') ||
+          (r.productType      || r.product_type      || '') !== (oldRow.product_type      || oldRow.productType      || '') ||
           (r.manufacturerName || r.manufacturer_name || '') !== (oldRow.manufacturer_name || oldRow.manufacturerName || '') ||
-          (r.partNumber || r.part_number || '') !== (oldRow.part_number || oldRow.partNumber || '') ||
-          String(r.qty ?? '') !== String(oldRow.qty ?? '') ||
-          (r.serialNumber || r.serial_number || '') !== (oldRow.serial_number || oldRow.serialNumber || '')
+          (r.partNumber       || r.part_number       || '') !== (oldRow.part_number       || oldRow.partNumber       || '') ||
+          String(r.qty ?? '')        !== String(oldRow.qty ?? '')        ||
+          (r.serialNumber     || r.serial_number     || '') !== (oldRow.serial_number     || oldRow.serialNumber     || '')
         );
       });
-
+ 
       if (newlyAddedHwSwRows.length > 0) {
         const summary = newlyAddedHwSwRows.map((row, idx) =>
           `Item ${idx + 1}: [Type: ${row.productType || '-'}, Manufacturer: "${row.manufacturerName || '-'}", Part#: "${row.partNumber || '-'}", QTY: ${row.qty || '-'}, S.N.: ${row.serialNumber || '-'}]`
         ).join(' | ');
-        addActivityLog('Created', 'HW/SW POs Item', `${newlyAddedHwSwRows.length} new inline item(s) added — ${summary}`);
+        addActivityLog('Created', 'HW/SW POs Item',
+          `${newlyAddedHwSwRows.length} new inline item(s) added — ${summary}`);
       }
-
+ 
       if (deletedHwSwRows.length > 0) {
         const deletedSummary = deletedHwSwRows.map((row, idx) =>
           `Item ${idx + 1}: [Type: ${row.product_type || '-'}, Manufacturer: "${row.manufacturer_name || '-'}", Part#: "${row.part_number || '-'}", QTY: ${row.qty || '-'}, S.N.: ${row.serial_number || '-'}]`
         ).join(' | ');
-        addActivityLog('Deleted', 'HW/SW POs Item', `${deletedHwSwRows.length} inline item(s) removed — ${deletedSummary}`);
+        addActivityLog('Deleted', 'HW/SW POs Item',
+          `${deletedHwSwRows.length} inline item(s) removed — ${deletedSummary}`);
       }
-
-      // ✅ Modified items log
+ 
       if (modifiedHwSwRows.length > 0) {
         const modSummary = modifiedHwSwRows.map((row, idx) => {
           const oldRow = (oldOrder?.items || []).find(old => old.id === row.id);
           const fieldChanges = [];
-          if ((row.productType || row.product_type || '') !== (oldRow.product_type || oldRow.productType || ''))
+          if ((row.productType      || row.product_type      || '') !== (oldRow.product_type      || oldRow.productType      || ''))
             fieldChanges.push(`Type: "${oldRow.product_type || '-'}" → "${row.productType || '-'}"`);
           if ((row.manufacturerName || row.manufacturer_name || '') !== (oldRow.manufacturer_name || oldRow.manufacturerName || ''))
             fieldChanges.push(`Manufacturer: "${oldRow.manufacturer_name || '-'}" → "${row.manufacturerName || '-'}"`);
-          if ((row.partNumber || row.part_number || '') !== (oldRow.part_number || oldRow.partNumber || ''))
+          if ((row.partNumber       || row.part_number       || '') !== (oldRow.part_number       || oldRow.partNumber       || ''))
             fieldChanges.push(`Part#: "${oldRow.part_number || '-'}" → "${row.partNumber || '-'}"`);
           if (String(row.qty ?? '') !== String(oldRow.qty ?? ''))
             fieldChanges.push(`QTY: "${oldRow.qty ?? '-'}" → "${row.qty ?? '-'}"`);
-          if ((row.serialNumber || row.serial_number || '') !== (oldRow.serial_number || oldRow.serialNumber || ''))
+          if ((row.serialNumber     || row.serial_number     || '') !== (oldRow.serial_number     || oldRow.serialNumber     || ''))
             fieldChanges.push(`S.N.: "${oldRow.serial_number || '-'}" → "${row.serialNumber || '-'}"`);
           return `Item ${idx + 1}: [${fieldChanges.join(', ')}]`;
         }).join(' | ');
-        addActivityLog('Updated', 'HW/SW POs Item', `${modifiedHwSwRows.length} inline item(s) modified — ${modSummary}`);
+        addActivityLog('Updated', 'HW/SW POs Item',
+          `${modifiedHwSwRows.length} inline item(s) modified — ${modSummary}`);
       }
-
+ 
       if (changes.length > 0) {
-        addActivityLog('Updated', 'HW/SW POs', `HW/SW PO updated — ${changes.join(', ')}`);
+        addActivityLog('Updated', 'HW/SW POs',
+          `HW/SW PO updated — ${changes.join(', ')}`);
       }
-
+ 
       setHardwareSoftwarePosOrderForm({
         orderDate: '', estNo: '', productType: '', userId: '',
         manufacturerName: '', partNumber: '', qty: '', serialNumber: '',
-        location: '', poNo: '', shipDate: '', invoiceNo: '', orderStatus: '' , remark: ''
+        location: '', poNo: '', shipDate: '', invoiceNo: '',
+        orderStatus: '', remark: ''
       });
       setHwSwPosItemRows([]);
       fetchHardwareSoftwarePosOrders();
       setEditingHardwareSoftwarePosOrderId(null);
       alert('✅ Hardware & Software PO updated successfully!');
       setActiveOrdersPage('hardware-software-pos-list');
-
+ 
+    // ── CREATE MODE ──
     } else {
-      const res = await axios.post('https://employee-directory-application-xzt1.onrender.com/orders/hwswpos', payload);
+      const res = await axios.post(
+        'https://employee-directory-application-xzt1.onrender.com/orders/hwswpos',
+        payload
+      );
       const newOrderId = res.data.id;
-
-      addActivityLog(
-        'Created', 'HW/SW POs',
+ 
+      // ✅ POD upload karo — POST ke baad
+      await handleHwSwPosPodUpload(newOrderId);
+ 
+      addActivityLog('Created', 'HW/SW POs',
         `New HW/SW PO created — Est#: ${hardwareSoftwarePosOrderForm.estNo}, Order Date: ${hardwareSoftwarePosOrderForm.orderDate}, Product: ${hardwareSoftwarePosOrderForm.productType}, Manufacturer: ${hardwareSoftwarePosOrderForm.manufacturerName}, Part#: ${hardwareSoftwarePosOrderForm.partNumber}, QTY: ${hardwareSoftwarePosOrderForm.qty}, S.N.: ${hardwareSoftwarePosOrderForm.serialNumber}, Location: ${hardwareSoftwarePosOrderForm.location}, PO#: ${hardwareSoftwarePosOrderForm.poNo}, Ship Date: ${hardwareSoftwarePosOrderForm.shipDate}, Invoice#: ${hardwareSoftwarePosOrderForm.invoiceNo}, Status: ${hardwareSoftwarePosOrderForm.orderStatus}`
       );
-
-      console.log('🔍 Ref files at save time:', hwSwPodFilesRef.current);
-      const podFiles = hwSwPodFilesRef.current.filter(Boolean);
-      console.log('🔍 podFiles:', podFiles);
-
-      for (const file of podFiles) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('orderId', newOrderId);
-        try {
-          await axios.post('https://employee-directory-application-xzt1.onrender.com/orders/hwswpos/upload-pod', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
-          console.log('✅ POD uploaded:', file.name);
-        } catch (err) {
-          console.error('❌ POD upload failed:', err);
-        }
-      }
-
+ 
       setHardwareSoftwarePosOrderForm({
         orderDate: '', estNo: '', productType: '', userId: '',
         manufacturerName: '', partNumber: '', qty: '', serialNumber: '',
-        location: '', poNo: '', shipDate: '', invoiceNo: '', orderStatus: '', remark: ''
+        location: '', poNo: '', shipDate: '', invoiceNo: '',
+        orderStatus: '', remark: ''
       });
       setHwSwPosItemRows([]);
       setHwSwPodFileInputs([{ id: 1, file: null }]);
@@ -2349,6 +2412,7 @@ const payload = {
       alert('✅ Hardware & Software PO saved successfully!');
       setActiveOrdersPage('hardware-software-pos-list');
     }
+ 
   } catch (error) {
     console.error('❌ Error saving HW/SW POS order:', error);
     alert(`❌ Failed to save: ${error.response?.data?.error || error.message}`);
