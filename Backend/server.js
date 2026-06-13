@@ -13,12 +13,21 @@ const { Resend } = require('resend');
 
 
 const app = express();
-app.use(
-  cors({
-    origin: "https://employee-directory-application-tan.vercel.app",
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  "https://employee-directory-application-tan.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:5173"
+];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -2892,22 +2901,7 @@ app.post('/resend-payment-link', async (req, res) => {
 });
 
 
-const allowedOrigins = [
-  "https://employee-directory-application-tan.vercel.app",
-  "http://localhost:3000",
-  "http://localhost:5173"
-];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
-}));
 
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {
