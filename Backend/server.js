@@ -2890,6 +2890,26 @@ app.post('/resend-payment-link', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+const allowedOrigins = [
+  "https://employee-directory-application-tan.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:5173"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (Postman, mobile apps)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
+
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {
   console.log(`\n🚀 Server running at https://localhost:${PORT}`);
