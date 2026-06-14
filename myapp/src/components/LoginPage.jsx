@@ -724,8 +724,8 @@ function Login() {
           <div className="cdn-logo-badge">
             <div className="cdn-logo-icon">💼</div>
             <div className="cdn-logo-text">
-              CDN Software Solutions
-              <span>Pvt. Ltd.</span>
+              ONTARIO POWER GENERATION
+              <span>(OPG)</span>
             </div>
           </div>
           <h1 className="cdn-hero-title">
